@@ -1,7 +1,7 @@
 // Enhanced IBMP Admission Form with Advanced Features
-// VERSION: 2.5 - PROGRESS BAR REMOVED + PERCENTAGE CALCULATION + DRAFT FUNCTIONALITY REMOVED
+// VERSION: 2.6 - FIXED FORM SUBMISSION ENDPOINT + CACHE BUST
 // TIMESTAMP: 2025-09-07
-console.log('🚀 Loading Enhanced Script v2.5 - PROGRESS BAR REMOVED');
+console.log('🚀 Loading Enhanced Script v2.6 - FIXED FORM SUBMISSION ENDPOINT');
 console.log('🕒 Load time:', new Date().toISOString());
 
 class IBMPAdmissionForm {
@@ -422,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize form
     try {
         new IBMPAdmissionForm();
-        console.log('✅ Form initialized successfully with v2.5 - PROGRESS BAR REMOVED');
+        console.log('✅ Form initialized successfully with v2.6 - FIXED FORM SUBMISSION ENDPOINT');
     } catch (error) {
         console.error('❌ Error initializing form:', error);
     }
