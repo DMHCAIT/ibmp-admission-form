@@ -48,7 +48,7 @@ function formatDate($date) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Details - <?= displayValue($application['first_name'] . ' ' . $application['last_name']) ?></title>
+    <title>Application Details - <?= displayValue($application['full_name']) ?></title>
     <style>
         * {
             margin: 0;
@@ -430,7 +430,7 @@ function formatDate($date) {
         <div class="main-content">
             <div class="application-header">
                 <div class="application-info">
-                    <h2><?= displayValue($application['first_name'] . ' ' . $application['last_name']) ?></h2>
+                    <h2><?= displayValue($application['full_name']) ?></h2>
                     <div class="application-meta">
                         <strong>Application ID:</strong> #<?= $application['id'] ?> | 
                         <strong>Submitted:</strong> <?= formatDate($application['created_at']) ?> |
@@ -451,16 +451,20 @@ function formatDate($date) {
                     <h3 class="section-title">👤 Personal Information</h3>
                     <div class="info-grid">
                         <div class="info-item">
-                            <div class="info-label">First Name</div>
-                            <div class="info-value"><?= displayValue($application['first_name']) ?></div>
+                            <div class="info-label">Title</div>
+                            <div class="info-value"><?= displayValue($application['title']) ?></div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label">Last Name</div>
-                            <div class="info-value"><?= displayValue($application['last_name']) ?></div>
+                            <div class="info-label">Full Name</div>
+                            <div class="info-value"><?= displayValue($application['full_name']) ?></div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Email Address</div>
-                            <div class="info-value"><?= displayValue($application['email']) ?></div>
+                            <div class="info-value"><?= displayValue($application['email_id']) ?></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Mobile Number</div>
+                            <div class="info-value"><?= displayValue($application['mobile_number']) ?></div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Phone Number</div>

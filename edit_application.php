@@ -102,7 +102,7 @@ function displayValue($value) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Application - <?= displayValue($application['first_name'] . ' ' . $application['last_name']) ?></title>
+    <title>Edit Application - <?= displayValue($application['full_name']) ?></title>
     <style>
         * {
             margin: 0;
@@ -294,7 +294,7 @@ function displayValue($value) {
     <div class="container">
         <div class="header">
             <h1>✏️ Edit Application</h1>
-            <p>Application ID: #<?= $application['id'] ?> | <?= displayValue($application['first_name'] . ' ' . $application['last_name']) ?></p>
+            <p>Application ID: #<?= $application['id'] ?> | <?= displayValue($application['full_name']) ?></p>
         </div>
 
         <div class="form-container">
@@ -313,20 +313,30 @@ function displayValue($value) {
                     <div class="section-content">
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="first_name">First Name *</label>
-                                <input type="text" id="first_name" name="first_name" value="<?= displayValue($application['first_name']) ?>" required>
+                                <label for="title">Title</label>
+                                <select id="title" name="title">
+                                    <option value="">Select Title</option>
+                                    <option value="Mr" <?= $application['title'] === 'Mr' ? 'selected' : '' ?>>Mr</option>
+                                    <option value="Ms" <?= $application['title'] === 'Ms' ? 'selected' : '' ?>>Ms</option>
+                                    <option value="Mrs" <?= $application['title'] === 'Mrs' ? 'selected' : '' ?>>Mrs</option>
+                                    <option value="Dr" <?= $application['title'] === 'Dr' ? 'selected' : '' ?>>Dr</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <label for="last_name">Last Name *</label>
-                                <input type="text" id="last_name" name="last_name" value="<?= displayValue($application['last_name']) ?>" required>
+                                <label for="full_name">Full Name *</label>
+                                <input type="text" id="full_name" name="full_name" value="<?= displayValue($application['full_name']) ?>" required>
                             </div>
                             <div class="form-group">
-                                <label for="email">Email *</label>
-                                <input type="email" id="email" name="email" value="<?= displayValue($application['email']) ?>" required>
+                                <label for="email_id">Email *</label>
+                                <input type="email" id="email_id" name="email_id" value="<?= displayValue($application['email_id']) ?>" required>
                             </div>
                             <div class="form-group">
-                                <label for="phone_number">Phone Number *</label>
-                                <input type="tel" id="phone_number" name="phone_number" value="<?= displayValue($application['phone_number']) ?>" required>
+                                <label for="mobile_number">Mobile Number *</label>
+                                <input type="tel" id="mobile_number" name="mobile_number" value="<?= displayValue($application['mobile_number']) ?>" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone_number">Phone Number</label>
+                                <input type="tel" id="phone_number" name="phone_number" value="<?= displayValue($application['phone_number']) ?>">
                             </div>
                             <div class="form-group">
                                 <label for="date_of_birth">Date of Birth *</label>

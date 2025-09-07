@@ -93,7 +93,8 @@ if ($dateTo) {
 }
 
 if ($search) {
-    $whereConditions[] = "(first_name LIKE ? OR last_name LIKE ? OR email LIKE ? OR phone_number LIKE ? OR id LIKE ?)";
+    $whereConditions[] = "(full_name LIKE ? OR email_id LIKE ? OR mobile_number LIKE ? OR phone_number LIKE ? OR id LIKE ? OR application_number LIKE ?)";
+    $params[] = "%$search%";
     $params[] = "%$search%";
     $params[] = "%$search%";
     $params[] = "%$search%";
@@ -774,8 +775,8 @@ function formatDate($date) {
                                 <?php foreach ($applications as $app): ?>
                                     <tr>
                                         <td><strong>#<?= $app['id'] ?></strong></td>
-                                        <td><?= displayValue($app['first_name'] . ' ' . $app['last_name']) ?></td>
-                                        <td><?= displayValue($app['email']) ?></td>
+                                        <td><?= displayValue($app['full_name']) ?></td>
+                                        <td><?= displayValue($app['email_id']) ?></td>
                                         <td><?= displayValue($app['course_name']) ?></td>
                                         <td><?= displayValue($app['course_type']) ?></td>
                                         <td>
