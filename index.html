@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admission Form - International Board of Medical Practitioners</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <img src="ibmp logo.png" alt="IBMP Official Logo" class="logo-img">
+                </div>
+                <nav class="main-nav">
+                    <a href="https://ibmpractitioner.us/">Home</a>
+                    <a href="https://ibmpractitioner.us/about-us/">About</a>
+                    <a href="https://ibmpractitioner.us/courses/">Courses</a>
+                    <a href="https://ibmpractitioner.us/accreditation/">Accreditation</a>
+                    <a href="https://ibmpractitioner.us/contact/">Contact</a>
+                </nav>
+                <div class="header-actions">
+                    <a href="https://ibmpractitioner.us/login" class="btn-login">Login</a>
+                    <a href="https://ibmpractitioner.us/login" class="btn-signup">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <section class="page-header">
+                <div class="header-content">
+                    <h1>Application for Admission</h1>
+                    <p>Join our globally recognized medical education programs and advance your healthcare career with International Board of Medical Practitioners (IBMP) certification.</p>
+                </div>
+            </section>
+
+            <!-- Admission Form -->
+            <section class="admission-form-section">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2>International Board of Medical Practitioners (IBMP)</h2>
+                        <p>Application for Admission - Academic Year 2025-26</p>
+                    </div>
+
+                    <form id="admissionForm" class="admission-form" novalidate>
+                        <!-- Form Number and Photo -->
+                        <fieldset class="form-section">
+                            <legend>Application Details</legend>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="formNumber">Form Number</label>
+                                    <input type="text" id="formNumber" name="formNumber" readonly value="IBMP-2025-AUTO-GENERATED">
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group photo-upload">
+                                    <label for="passportPhoto">Recent Passport Size Photo *</label>
+                                    <input type="file" id="passportPhoto" name="passportPhoto" accept=".jpg,.jpeg,.png" required>
+                                    <span class="file-note">Accepted formats: JPG, PNG (Max 2MB)</span>
+                                    <span class="error-message"></span>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Personal Details -->
+                        <fieldset class="form-section">
+                            <legend>Personal Details</legend>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="title">Title *</label>
+                                    <select id="title" name="title" required>
+                                        <option value="">Select Title</option>
+                                        <option value="Mr.">Mr.</option>
+                                        <option value="Ms.">Ms.</option>
+                                        <option value="Mrs.">Mrs.</option>
+                                        <option value="Dr.">Dr.</option>
+                                    </select>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="fullName">Name *</label>
+                                    <input type="text" id="fullName" name="fullName" required placeholder="Full Name as per Certificate">
+                                    <span class="error-message"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="dateOfBirth">Date of Birth *</label>
+                                    <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="gender">Gender *</label>
+                                    <select id="gender" name="gender" required>
+                                        <option value="">Select Gender</option>
+                                        <option value="M">Male (M)</option>
+                                        <option value="F">Female (F)</option>
+                                    </select>
+                                    <span class="error-message"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="category">Category *</label>
+                                    <select id="category" name="category" required>
+                                        <option value="">Select Category</option>
+                                        <option value="General">General</option>
+                                        <option value="OBC">OBC</option>
+                                        <option value="SC">SC</option>
+                                        <option value="ST">ST</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="age">Age *</label>
+                                    <input type="number" id="age" name="age" min="18" max="100" required placeholder="As in 10th Certificate">
+                                    <span class="error-message"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="nationality">Nationality *</label>
+                                    <input type="text" id="nationality" name="nationality" required value="Indian">
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="maritalStatus">Marital Status *</label>
+                                    <select id="maritalStatus" name="maritalStatus" required>
+                                        <option value="">Select Status</option>
+                                        <option value="Single">Single</option>
+                                        <option value="Married">Married</option>
+                                        <option value="Divorced">Divorced</option>
+                                        <option value="Widowed">Widowed</option>
+                                    </select>
+                                    <span class="error-message"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="religion">Religion</label>
+                                <input type="text" id="religion" name="religion" placeholder="Optional">
+                                <span class="error-message"></span>
+                            </div>
+                        </fieldset>
+
+                        <!-- How do you know us -->
+                        <fieldset class="form-section">
+                            <legend>How do you know us?</legend>
+                            
+                            <div class="form-group">
+                                <label for="referralSource">How did you hear about IBMP? *</label>
+                                <select id="referralSource" name="referralSource" required>
+                                    <option value="">Select an option</option>
+                                    <option value="Google Search">Google Search</option>
+                                    <option value="Social Media">Social Media (Facebook, Instagram, LinkedIn, etc.)</option>
+                                    <option value="DMHCA">DMHCA</option>
+                                    <option value="Website">IBMP Website</option>
+                                    <option value="Email Newsletter">Email Newsletter</option>
+                                    <option value="Friend/Family">Friend/Family Recommendation</option>
+                                    <option value="Colleague">Colleague Recommendation</option>
+                                    <option value="Medical Conference">Medical Conference/Exhibition</option>
+                                    <option value="Online Advertisement">Online Advertisement</option>
+                                    <option value="Print Media">Newspaper/Magazine</option>
+                                    <option value="TV/Radio">TV/Radio</option>
+                                    <option value="Educational Institution">Educational Institution</option>
+                                    <option value="Hospital/Clinic">Hospital/Clinic</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <span class="error-message"></span>
+                            </div>
+
+                            <div class="form-group" id="otherSourceGroup" style="display: none;">
+                                <label for="otherReferralSource">Please specify *</label>
+                                <input type="text" id="otherReferralSource" name="otherReferralSource" placeholder="Please tell us how you found us">
+                                <span class="error-message"></span>
+                            </div>
+                        </fieldset>
+
+                        <!-- Contact Details -->
+                        <fieldset class="form-section">
+                            <legend>Contact Details</legend>
+                            
+                            <div class="form-group">
+                                <label for="correspondenceAddress">Correspondence Address *</label>
+                                <textarea id="correspondenceAddress" name="correspondenceAddress" rows="3" required placeholder="Complete correspondence address"></textarea>
+                                <span class="error-message"></span>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="phoneNumber">Phone Number</label>
+                                    <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="Landline number">
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="mobileNumber">Mobile Number *</label>
+                                    <input type="tel" id="mobileNumber" name="mobileNumber" required placeholder="Mobile number">
+                                    <span class="error-message"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="emailId">Email ID *</label>
+                                <input type="email" id="emailId" name="emailId" required placeholder="Email address">
+                                <span class="error-message"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="permanentAddress">Permanent Address *</label>
+                                <textarea id="permanentAddress" name="permanentAddress" rows="3" required placeholder="Complete permanent address"></textarea>
+                                <span class="error-message"></span>
+                            </div>
+                        </fieldset>
+
+                        <!-- Family Details -->
+                        <fieldset class="form-section">
+                            <legend>Family Details</legend>
+                            
+                            <div class="family-details-table">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Parent's Name</th>
+                                            <th>Occupation</th>
+                                            <th>Mobile No</th>
+                                            <th>Email ID</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><input type="text" name="parentName" placeholder="Parent's name"></td>
+                                            <td><input type="text" name="parentOccupation" placeholder="Occupation"></td>
+                                            <td><input type="tel" name="parentMobile" placeholder="Mobile number"></td>
+                                            <td><input type="email" name="parentEmail" placeholder="Email ID"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </fieldset>
+
+                        <!-- Course/Programme Details -->
+                        <fieldset class="form-section">
+                            <legend>Course/Programme Details</legend>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="courseType">Course Type *</label>
+                                    <select id="courseType" name="courseType" required>
+                                        <option value="">Select Course Type</option>
+                                        <option value="Fellowship">Fellowship</option>
+                                    </select>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="courseName">Course Name *</label>
+                                    <select id="courseName" name="courseName" required>
+                                        <option value="">Select Course</option>
+                                        
+                                        <!-- General Medicine & Internal Medicine -->
+                                        <option value="Fellowship in Emergency Medicine">Fellowship in Emergency Medicine</option>
+                                        <option value="Fellowship in Diabetology">Fellowship in Diabetology</option>
+                                        <option value="Fellowship in Family Medicine">Fellowship in Family Medicine</option>
+                                        <option value="Fellowship in Anesthesiology">Fellowship in Anesthesiology</option>
+                                        <option value="Fellowship in Critical Care">Fellowship in Critical Care</option>
+                                        <option value="Fellowship in Internal Medicine">Fellowship in Internal Medicine</option>
+                                        <option value="Fellowship in Endocrinology">Fellowship in Endocrinology</option>
+                                        <option value="Fellowship in HIV Medicine">Fellowship in HIV Medicine</option>
+                                        <option value="Fellowship in Intensive Care">Fellowship in Intensive Care</option>
+                                        <option value="Fellowship in Geriatric Medicine">Fellowship in Geriatric Medicine</option>
+                                        <option value="Fellowship in Pulmonary Medicine">Fellowship in Pulmonary Medicine</option>
+                                        <option value="Fellowship in Pain Management">Fellowship in Pain Management</option>
+                                        <option value="Fellowship in Psychological Medicine">Fellowship in Psychological Medicine</option>
+                                        
+                                        <!-- Obstetrics & Gynecology -->
+                                        <option value="Fellowship in Obstetrics & Gynecology">Fellowship in Obstetrics & Gynecology</option>
+                                        <option value="Fellowship in Reproductive Medicine">Fellowship in Reproductive Medicine</option>
+                                        <option value="Fellowship in Fetal Medicine">Fellowship in Fetal Medicine</option>
+                                        <option value="Fellowship in Cosmetic Gynecology">Fellowship in Cosmetic Gynecology</option>
+                                        <option value="Fellowship in Endogynecology">Fellowship in Endogynecology</option>
+                                        <option value="Fellowship in Gynae Oncology">Fellowship in Gynae Oncology</option>
+                                        <option value="Fellowship in Gynae Laparoscopy">Fellowship in Gynae Laparoscopy</option>
+                                        <option value="Fellowship in Laparoscopy & Hysteroscopy">Fellowship in Laparoscopy & Hysteroscopy</option>
+                                        <option value="Fellowship in High-Risk Pregnancy & Advanced Labor Ward Management">Fellowship in High-Risk Pregnancy & Advanced Labor Ward Management</option>
+                                        
+                                        <!-- Pediatrics -->
+                                        <option value="Fellowship in Neonatology">Fellowship in Neonatology</option>
+                                        <option value="Fellowship in Pediatric Endocrinology">Fellowship in Pediatric Endocrinology</option>
+                                        <option value="Fellowship in GI Endoscopy">Fellowship in GI Endoscopy</option>
+                                        <option value="Fellowship in Pediatric Critical Care">Fellowship in Pediatric Critical Care</option>
+                                        <option value="Fellowship in Pediatrics">Fellowship in Pediatrics</option>
+                                        <option value="Fellowship in Embryology">Fellowship in Embryology</option>
+                                        <option value="Fellowship in Pediatric Neurology">Fellowship in Pediatric Neurology</option>
+                                        <option value="Fellowship in Pediatric Surgery">Fellowship in Pediatric Surgery</option>
+                                        
+                                        <!-- Dermatology -->
+                                        <option value="Fellowship in Dermatology">Fellowship in Dermatology</option>
+                                        <option value="Fellowship in Cosmetology & Aesthetic Medicine">Fellowship in Cosmetology & Aesthetic Medicine</option>
+                                        <option value="Fellowship in Trichology">Fellowship in Trichology</option>
+                                        
+                                        <!-- Cardiology -->
+                                        <option value="Fellowship in Echocardiography">Fellowship in Echocardiography</option>
+                                        <option value="Fellowship in Clinical Cardiology">Fellowship in Clinical Cardiology</option>
+                                        <option value="Fellowship in Preventive Cardiology">Fellowship in Preventive Cardiology</option>
+                                        <option value="Fellowship in Interventional Cardiology">Fellowship in Interventional Cardiology</option>
+                                        <option value="Fellowship in Pediatric Cardiology">Fellowship in Pediatric Cardiology</option>
+                                        <option value="Fellowship in Pediatric Echocardiography">Fellowship in Pediatric Echocardiography</option>
+                                        <option value="Fellowship in Fetal Echocardiography">Fellowship in Fetal Echocardiography</option>
+                                        
+                                        <!-- Radiology & Imaging -->
+                                        <option value="Fellowship in Interventional Radiology">Fellowship in Interventional Radiology</option>
+                                        <option value="Fellowship in Musculoskeletal Ultrasound">Fellowship in Musculoskeletal Ultrasound</option>
+                                        <option value="Fellowship in Peripheral Ultrasound">Fellowship in Peripheral Ultrasound</option>
+                                        <option value="Fellowship in Vascular Ultrasound">Fellowship in Vascular Ultrasound</option>
+                                        <option value="Fellowship in Emergency Ultrasound">Fellowship in Emergency Ultrasound</option>
+                                        
+                                        <!-- Neurology & Sleep Medicine -->
+                                        <option value="Fellowship in Sleep Medicine">Fellowship in Sleep Medicine</option>
+                                        <option value="Fellowship in Clinical Neurology">Fellowship in Clinical Neurology</option>
+                                        
+                                        <!-- Oncology -->
+                                        <option value="Fellowship in Clinical Oncology">Fellowship in Clinical Oncology</option>
+                                        <option value="Fellowship in Medical Oncology">Fellowship in Medical Oncology</option>
+                                        <option value="Fellowship in Clinical Hematology">Fellowship in Clinical Hematology</option>
+                                        <option value="Fellowship in Head & Neck Oncology">Fellowship in Head & Neck Oncology</option>
+                                        
+                                        <!-- Orthopedics & Sports Medicine -->
+                                        <option value="Fellowship in Arthroscopy & Joint Replacement">Fellowship in Arthroscopy & Joint Replacement</option>
+                                        <option value="Fellowship in Spinal Cord Surgery">Fellowship in Spinal Cord Surgery</option>
+                                        <option value="Fellowship in Rheumatology">Fellowship in Rheumatology</option>
+                                        <option value="Fellowship in Spinal Cord Medicine">Fellowship in Spinal Cord Medicine</option>
+                                        <option value="Fellowship in Arthroscopy & Arthroplasty">Fellowship in Arthroscopy & Arthroplasty</option>
+                                        <option value="Fellowship in Arthroscopy Sports Medicine">Fellowship in Arthroscopy Sports Medicine</option>
+                                        
+                                        <!-- Surgery -->
+                                        <option value="Fellowship in Minimal Access Surgery">Fellowship in Minimal Access Surgery</option>
+                                        <option value="Fellowship in Robotic Surgery">Fellowship in Robotic Surgery</option>
+                                        <option value="Fellowship in Gastroenterology/Endoscopy">Fellowship in Gastroenterology/Endoscopy</option>
+                                        <option value="Fellowship in General Surgery">Fellowship in General Surgery</option>
+                                        <option value="Fellowship in General Laparoscopy Surgery">Fellowship in General Laparoscopy Surgery</option>
+                                        <option value="Fellowship in Neuro Surgery">Fellowship in Neuro Surgery</option>
+                                        <option value="Fellowship in Maxillofacial Surgery">Fellowship in Maxillofacial Surgery</option>
+                                        
+                                        <!-- Dentistry -->
+                                        <option value="Fellowship in Oral Implantology & Laser Dentistry">Fellowship in Oral Implantology & Laser Dentistry</option>
+                                        <option value="Fellowship in Facial Aesthetics & Cosmetology">Fellowship in Facial Aesthetics & Cosmetology</option>
+                                        
+                                        <!-- Nephrology -->
+                                        <option value="Fellowship in Dialysis">Fellowship in Dialysis</option>
+                                        <option value="Fellowship in Interventional Nephrology">Fellowship in Interventional Nephrology</option>
+                                        <option value="Fellowship in Nephrology">Fellowship in Nephrology</option>
+                                        
+                                        <!-- Specialized Fields -->
+                                        <option value="Fellowship in Epidemiology & Biostatistics">Fellowship in Epidemiology & Biostatistics</option>
+                                        <option value="Fellowship in Digital Health">Fellowship in Digital Health</option>
+                                        <option value="Fellowship in Ophthalmology">Fellowship in Ophthalmology</option>
+                                    </select>
+                                    <span class="error-message"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="sessionYear">Session / Year *</label>
+                                <select id="sessionYear" name="sessionYear" required>
+                                    <option value="">Select Session</option>
+                                    <option value="2025-2026">2025-2026</option>
+                                    <option value="2026-2027">2026-2027</option>
+                                    <option value="2027-2028">2027-2028</option>
+                                </select>
+                                <span class="error-message"></span>
+                            </div>
+                        </fieldset>
+
+                        <!-- Educational Qualification -->
+                        <fieldset class="form-section">
+                            <legend>Educational Qualification</legend>
+                            <p class="note-text">Note: Please read the form carefully before filling it. Attach the required documents as mentioned in educational qualification. Result/Score of qualification examination. Incomplete application will be rejected.</p>
+                            
+                            <div class="educational-table">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Examination Passed</th>
+                                            <th>Name of School/College and Board/University</th>
+                                            <th>Year of Passing</th>
+                                            <th>Subject Studied</th>
+                                            <th>Marks Obtained</th>
+                                            <th>Maximum Marks</th>
+                                            <th>% of Marks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>10th</td>
+                                            <td><input type="text" name="school10th" required placeholder="School name and board"></td>
+                                            <td><input type="number" name="year10th" min="1980" max="2025" required></td>
+                                            <td><input type="text" name="subject10th" placeholder="Subjects"></td>
+                                            <td><input type="number" name="marks10th" required></td>
+                                            <td><input type="number" name="maxMarks10th" required></td>
+                                            <td><input type="number" name="percentage10th" step="0.01" readonly></td>
+                                        </tr>
+                                        <tr>
+                                            <td>12th</td>
+                                            <td><input type="text" name="school12th" required placeholder="School name and board"></td>
+                                            <td><input type="number" name="year12th" min="1980" max="2025" required></td>
+                                            <td><input type="text" name="subject12th" placeholder="Subjects"></td>
+                                            <td><input type="number" name="marks12th" required></td>
+                                            <td><input type="number" name="maxMarks12th" required></td>
+                                            <td><input type="number" name="percentage12th" step="0.01" readonly></td>
+                                        </tr>
+                                        <tr>
+                                            <td>U-Graduation</td>
+                                            <td><input type="text" name="collegeUG" required placeholder="College and university"></td>
+                                            <td><input type="number" name="yearUG" min="1980" max="2025" required></td>
+                                            <td><input type="text" name="subjectUG" placeholder="Degree/Stream"></td>
+                                            <td><input type="number" name="marksUG" required></td>
+                                            <td><input type="number" name="maxMarksUG" required></td>
+                                            <td><input type="number" name="percentageUG" step="0.01" readonly></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Post-Graduation</td>
+                                            <td><input type="text" name="collegePG" placeholder="College and university"></td>
+                                            <td><input type="number" name="yearPG" min="1980" max="2025"></td>
+                                            <td><input type="text" name="subjectPG" placeholder="Degree/Specialization"></td>
+                                            <td><input type="number" name="marksPG"></td>
+                                            <td><input type="number" name="maxMarksPG"></td>
+                                            <td><input type="number" name="percentagePG" step="0.01" readonly></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Any Other Qualification</td>
+                                            <td><input type="text" name="collegeOther" placeholder="Institution name"></td>
+                                            <td><input type="number" name="yearOther" min="1980" max="2025"></td>
+                                            <td><input type="text" name="subjectOther" placeholder="Qualification"></td>
+                                            <td><input type="number" name="marksOther"></td>
+                                            <td><input type="number" name="maxMarksOther"></td>
+                                            <td><input type="number" name="percentageOther" step="0.01" readonly></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </fieldset>
+
+                        <!-- Payment Details -->
+                        <fieldset class="form-section">
+                            <legend>Payment Details</legend>
+                            
+                            <div class="form-group">
+                                <label for="paymentOption">Payment Option *</label>
+                                <select id="paymentOption" name="paymentOption" required>
+                                    <option value="">Select Payment Option</option>
+                                    <option value="full_payment">Full Payment</option>
+                                    <option value="part_payment">Part Payment</option>
+                                </select>
+                                <span class="error-message"></span>
+                            </div>
+
+                            <div class="wire-transfer-info">
+                                <h4>Wire Transfer Details:</h4>
+                                <div class="bank-details">
+                                    <p><strong>Account Name:</strong> INTERNATIONAL BOARD OF MEDICAL PRACTITIONERS</p>
+                                    <p><strong>Account No.:</strong> Contact IBMP for account details</p>
+                                    <p><strong>IFSC Code:</strong> Contact IBMP for IFSC code</p>
+                                    <p><strong>Bank Name:</strong> Contact IBMP for bank details</p>
+                                    <p><strong>Branch:</strong> Contact IBMP for branch details</p>
+                                    <p class="contact-note">For wire transfer details, please contact: <a href="mailto:info@ibmpractitioner.us">info@ibmpractitioner.us</a></p>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Supporting Documents -->
+                        <fieldset class="form-section">
+                            <legend>Supporting Documents</legend>
+                            
+                            <div class="form-group">
+                                <label for="cv">Curriculum Vitae (CV) *</label>
+                                <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required>
+                                <span class="file-note">Accepted formats: PDF, DOC, DOCX (Max 5MB)</span>
+                                <span class="error-message"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="educationalCertificates">Educational Certificates *</label>
+                                <input type="file" id="educationalCertificates" name="educationalCertificates" accept=".pdf,.jpg,.jpeg,.png" multiple required>
+                                <span class="file-note">10th, 12th, UG, PG certificates - PDF, JPG, PNG (Max 5MB each)</span>
+                                <span class="error-message"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="marksheets">Mark Sheets/Transcripts *</label>
+                                <input type="file" id="marksheets" name="marksheets" accept=".pdf,.jpg,.jpeg,.png" multiple required>
+                                <span class="file-note">All academic transcripts - PDF, JPG, PNG (Max 5MB each)</span>
+                                <span class="error-message"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="identityProof">Identity Proof *</label>
+                                <input type="file" id="identityProof" name="identityProof" accept=".pdf,.jpg,.jpeg,.png" required>
+                                <span class="file-note">Passport/Aadhar/Driving License - PDF, JPG, PNG (Max 5MB)</span>
+                                <span class="error-message"></span>
+                            </div>
+                        </fieldset>
+
+                        <!-- Student Terms & Conditions -->
+                        <fieldset class="form-section">
+                            <legend>Student Terms and Conditions</legend>
+                            
+                            <div class="terms-content">
+                                <h4>Fees & Refunds</h4>
+                                <p>Fees are non-transferable. Refund requests are allowed within 7 days of payment OR before the program starts (whichever is earlier). 30% of the total fee paid will be deducted as an administrative charge. No refunds once 7 days have passed or after LMS/course access begins.</p>
+                                
+                                <h4>Batch Transfers</h4>
+                                <p>Transfers are not allowed, unless approved with a transfer fee.</p>
+                                
+                                <h4>Policies</h4>
+                                <p>IBMP may update rules, requirements, or curriculum anytime. Updates will be shared officially.</p>
+                                
+                                <h4>Your Information</h4>
+                                <p>Keep IBMP updated on changes to your address, phone, or email.</p>
+                                
+                                <h4>Documents</h4>
+                                <p>Submit all required certificates/IDs as requested. Admission may stay provisional until documents are verified.</p>
+                                
+                                <h4>Authenticity</h4>
+                                <p>All documents must be genuine. Fake or false documents will cause admission cancellation, fee loss, and possible legal action.</p>
+                                
+                                <h4>Conduct</h4>
+                                <p>Maintain professional and academic integrity. Misconduct or plagiarism may result in suspension or dismissal.</p>
+                                
+                                <h4>Jurisdiction</h4>
+                                <p>All disputes follow the laws of the country where IBMP is incorporated.</p>
+                            </div>
+
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="termsAccepted" name="termsAccepted" required>
+                                    <span class="checkmark"></span>
+                                    I have read and agree to all the above terms and conditions *
+                                </label>
+                                <span class="error-message"></span>
+                            </div>
+
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="privacyAccepted" name="privacyAccepted" required>
+                                    <span class="checkmark"></span>
+                                    I agree to the <a href="https://ibmpractitioner.us/privacy-policy/" target="_blank">Privacy Policy</a> *
+                                </label>
+                                <span class="error-message"></span>
+                            </div>
+                        </fieldset>
+
+                        <!-- Declaration -->
+                        <fieldset class="form-section">
+                            <legend>Declaration</legend>
+                            
+                            <div class="declaration-content">
+                                <p>I <input type="text" name="declarantName" placeholder="Your full name" class="inline-input"> son/daughter of <input type="text" name="parentNameDeclaration" placeholder="Parent's name" class="inline-input"> have read & hereby certify that the information given in the Application is complete and accurate to the best of my Knowledge.</p>
+                                
+                                <p>I understand all the rules and regulations laid down by the IBMP and agree that misrepresentation or omission of facts will justify the denial of admission, cancellation of admission or expulsion. The fees paid are non-refundable under this circumstance. In case I am not in position to join continuing course even after submission of fees, I will not claim refund of fees. I am not entitled to pursue any course from any other Educational Group while enrolling with this IBMP.</p>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="declarationDate">Date *</label>
+                                    <input type="date" id="declarationDate" name="declarationDate" required>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="digitalSignature">Digital Signature *</label>
+                                    <input type="file" id="digitalSignature" name="digitalSignature" accept=".png,.jpg,.jpeg" required>
+                                    <span class="file-note">Upload your signature (PNG, JPG format, Max 1MB)</span>
+                                    <span class="error-message"></span>
+                                </div>
+                            </div>
+
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="declarationAccepted" name="declarationAccepted" required>
+                                    <span class="checkmark"></span>
+                                    I hereby confirm that all information provided is true and accurate *
+                                </label>
+                                <span class="error-message"></span>
+                            </div>
+                        </fieldset>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <!-- Save draft functionality removed -->
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="form-submit">
+                            <button type="submit" class="btn-submit">
+                                <span class="btn-text">Submit Application</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Contact Information -->
+            <section class="contact-section">
+                <div class="contact-content">
+                    <h3>Need Help?</h3>
+                    <p>If you have any questions about the admission process, please contact us:</p>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <a href="mailto:info@ibmpractitioner.us">info@ibmpractitioner.us</a>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <a href="tel:+13026002718">+1 302 600 2718</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="ibmp logo.png" alt="IBMP Official Logo" class="footer-logo-img">
+                        <h4>International Board of Medical Practitioners</h4>
+                    </div>
+                    <p>Empowering Global Healthcare Excellence: Training, Education, and Innovation.</p>
+                </div>
+                <div class="footer-section">
+                    <h5>Useful Links</h5>
+                    <ul>
+                        <li><a href="https://ibmpractitioner.us/ibmp-faculty/">Faculty</a></li>
+                        <li><a href="https://ibmpractitioner.us/privacy-policy/">Privacy Policy</a></li>
+                        <li><a href="https://ibmpractitioner.us/terms-and-conditions/">Terms & Conditions</a></li>
+                        <li><a href="https://ibmpractitioner.us/refund_returns/">Refund & Returns Policy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h5>Company</h5>
+                    <ul>
+                        <li><a href="https://ibmpractitioner.us/about-us/">About Us</a></li>
+                        <li><a href="https://ibmpractitioner.us/contact/">Contact Us</a></li>
+                        <li><a href="https://ibmpractitioner.us/courses/">Courses</a></li>
+                        <li><a href="https://ibmpractitioner.us/accreditation/">Accreditation</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h5>Get Contact</h5>
+                    <p>600 N Broad Street Suite 5 #3695<br>Middletown, DE 19709, USA</p>
+                    <p>Email: <a href="mailto:info@ibmpractitioner.us">info@ibmpractitioner.us</a></p>
+                    <p>Phone: <a href="tel:+13026002718">+1 302 600 2718</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 IBMPractitioner. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-body">
+                <i class="fas fa-check-circle"></i>
+                <h3>Application Submitted Successfully!</h3>
+                <p>Thank you for your application. We will review your submission and contact you within 2-3 business days.</p>
+                <button class="btn-modal" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="enhanced-script.js?v=20250907-v25"></script>
+</body>
+</html>
