@@ -25,19 +25,28 @@ try {
 // Handle form submission
 if ($_POST) {
     try {
-        // Prepare update query - only update non-file fields
+        // Comprehensive field mapping based on your database structure
         $updateFields = [
-            'first_name', 'last_name', 'email', 'phone_number', 'date_of_birth',
-            'gender', 'nationality', 'address', 'city', 'postal_code',
-            'course_type', 'course_name', 'preferred_start_date', 'study_mode',
+            'title', 'full_name', 'date_of_birth', 'gender', 'category', 'age', 
+            'nationality', 'marital_status', 'religion', 'correspondence_address',
+            'phone_number', 'mobile_number', 'email_id', 'permanent_address',
+            'parent_name', 'parent_occupation', 'parent_mobile', 'parent_email',
+            'course_type', 'course_name', 'session_year',
+            'school_10th', 'year_10th', 'subject_10th', 'marks_10th', 'max_marks_10th', 'percentage_10th',
+            'school_12th', 'year_12th', 'subject_12th', 'marks_12th', 'max_marks_12th', 'percentage_12th',
+            'college_ug', 'year_ug', 'subject_ug', 'marks_ug', 'max_marks_ug', 'percentage_ug',
+            'college_pg', 'year_pg', 'subject_pg', 'marks_pg', 'max_marks_pg', 'percentage_pg',
+            'college_other', 'year_other', 'subject_other', 'marks_other', 'max_marks_other', 'percentage_other',
+            'dd_cheque_no', 'dd_date', 'payment_amount', 'bank_details',
+            'referral_source', 'other_referral_source',
+            'preferred_start_date', 'study_mode', 'address', 'city', 'postal_code',
             'matric_board', 'matric_year', 'matric_marks', 'matric_total_marks', 'matric_percentage',
             'inter_board', 'inter_year', 'inter_marks', 'inter_total_marks', 'inter_percentage',
-            'bachelor_university', 'bachelor_degree', 'bachelor_year', 'bachelor_cgpa', 'bachelor_percentage',
-            'master_university', 'master_degree', 'master_year', 'master_cgpa', 'master_percentage',
+            'bachelor_university', 'bachelor_year', 'bachelor_percentage', 'bachelor_cgpa',
+            'master_university', 'master_year', 'master_percentage', 'master_cgpa',
             'sponsor_name', 'sponsor_relationship', 'sponsor_income', 'sponsor_occupation',
-            'emergency_contact_name', 'emergency_contact_relationship', 
-            'emergency_contact_phone', 'emergency_contact_address',
-            'payment_option', 'status'
+            'payment_option', 'emergency_contact_name', 'emergency_contact_relationship',
+            'emergency_contact_phone', 'emergency_contact_address', 'status'
         ];
         
         $sql = "UPDATE applications SET ";
@@ -51,14 +60,22 @@ if ($_POST) {
             }
         }
         
+        if (empty($setParts)) {
+            throw new Exception("No fields to update");
+        }
+        
         $sql .= implode(', ', $setParts) . ", updated_at = NOW() WHERE id = ?";
         $params[] = $applicationId;
         
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         
-        header('Location: view_applications.php?updated=1');
-        exit();
+        $success = "Application updated successfully!";
+        
+        // Refresh the application data
+        $stmt = $pdo->prepare("SELECT * FROM applications WHERE id = ?");
+        $stmt->execute([$applicationId]);
+        $application = $stmt->fetch(PDO::FETCH_ASSOC);
         
     } catch (Exception $e) {
         $error = "Update failed: " . $e->getMessage();

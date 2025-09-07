@@ -688,7 +688,7 @@ function formatDate($date) {
                     <div class="admin-utilities">
                         <a href="index.html" class="btn btn-secondary">🏠 Back to Form</a>
                         <a href="file_management.php" class="btn btn-info">📁 File Management</a>
-                        <a href="generate_pdf.php" class="btn btn-success">📄 Generate Reports</a>
+                        <a href="system_status.php" class="btn btn-success">� System Status</a>
                         <a href="config.php" class="btn btn-warning">⚙️ System Config</a>
                     </div>
                 </div>
@@ -789,7 +789,7 @@ function formatDate($date) {
                                                 <a href="view_application.php?id=<?= $app['id'] ?>" class="btn btn-info">👁️ View</a>
                                                 <a href="edit_application.php?id=<?= $app['id'] ?>" class="btn btn-warning">✏️ Edit</a>
                                                 <a href="generate_invoice.php?id=<?= $app['id'] ?>" class="btn btn-success">💳 Invoice</a>
-                                                <a href="generate_pdf.php?id=<?= $app['id'] ?>" class="btn btn-success">📄 PDF</a>
+                                                <a href="generate_application_pdf.php?id=<?= $app['id'] ?>" class="btn btn-success">📄 PDF</a>
                                                 <button onclick="openStatusModal(<?= $app['id'] ?>, '<?= $app['status'] ?? 'pending' ?>')" class="btn btn-warning">📋 Status</button>
                                                 <a href="?action=delete&id=<?= $app['id'] ?>" 
                                                    class="btn btn-danger"
