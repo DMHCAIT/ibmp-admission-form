@@ -291,18 +291,19 @@ function displayValue($value) {
         .invoice-preview {
             border: 2px solid #e5e7eb;
             border-radius: 12px;
-            padding: 30px;
+            padding: 20px;
             background: white;
             margin-top: 30px;
+            page-break-inside: avoid;
         }
 
         .invoice-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 40px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 15px;
         }
 
         .company-info {
@@ -314,12 +315,12 @@ function displayValue($value) {
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .logo-container {
-            width: 70px;
-            height: 70px;
+            width: 120px;
+            height: 120px;
             background: transparent;
             border-radius: 12px;
             display: flex;
@@ -332,8 +333,8 @@ function displayValue($value) {
         }
 
         .logo-image {
-            width: 60px;
-            height: 60px;
+            width: 110px;
+            height: 110px;
             object-fit: contain;
             margin-right: 10px;
         }
@@ -497,21 +498,71 @@ function displayValue($value) {
             body {
                 background: white;
                 padding: 0;
+                margin: 0;
             }
             
             .container {
                 box-shadow: none;
                 border-radius: 0;
+                max-width: none;
             }
             
             .header, .content > *:not(.invoice-preview) {
-                display: none;
+                display: none !important;
             }
             
             .invoice-preview {
                 border: none;
-                padding: 0;
+                padding: 15px;
                 margin: 0;
+                page-break-inside: avoid;
+                height: auto;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            /* Compact spacing for single page */
+            .invoice-header {
+                margin-bottom: 20px;
+            }
+            
+            .bill-to {
+                margin: 20px 0;
+                padding: 15px;
+            }
+            
+            .items-table {
+                margin: 20px 0;
+            }
+            
+            .items-table th, .items-table td {
+                padding: 8px 12px;
+            }
+            
+            .totals {
+                margin-top: 20px;
+            }
+            
+            .notes {
+                margin-top: 20px;
+                padding: 15px;
+            }
+            
+            /* Ensure single page fit */
+            .invoice-preview {
+                font-size: 14px;
+                line-height: 1.4;
+            }
+            
+            .invoice-title {
+                font-size: 2rem;
+            }
+            
+            .company-address {
+                font-size: 12px;
+                line-height: 1.3;
             }
         }
     </style>
@@ -613,7 +664,9 @@ function displayValue($value) {
                 <div style="text-align: center; margin: 30px 0;">
                     <button type="submit" class="btn btn-primary">💾 Save Invoice</button>
                     <button type="button" onclick="window.print()" class="btn btn-success">🖨️ Print Invoice</button>
-                    <button type="button" onclick="downloadInvoice()" class="btn btn-info">📥 Download PDF</button>
+                    <button type="button" onclick="downloadInvoice()" class="btn btn-success">📥 Download PDF</button>
+                    <button type="button" onclick="viewFullscreen()" class="btn btn-info">🔍 View Fullscreen</button>
+                    <a href="admin_panel.php" class="btn btn-secondary" style="text-decoration: none;">← Back to Admin Panel</a>
                 </div>
             </form>
 
@@ -627,7 +680,6 @@ function displayValue($value) {
                                 <div class="logo-text">IBMP</div>
                             </div>
                             <div>
-                                <div class="company-name">International Board of Medical Practitioners</div>
                                 <div class="company-subtitle">Professional Medical Education & Training</div>
                                 <div class="company-address">
                                     Khatana Farm, First Floor No: 581/2<br>
@@ -660,10 +712,10 @@ function displayValue($value) {
 
                 <div class="bill-to">
                     <h3>Bill To:</h3>
-                    <strong><?= displayValue($application['first_name'] . ' ' . $application['last_name']) ?></strong><br>
-                    <?= displayValue($application['email']) ?><br>
-                    <?= displayValue($application['phone_number']) ?><br>
-                    <?= displayValue($application['address']) ?><br>
+                    <strong><?= displayValue($application['full_name']) ?></strong><br>
+                    <?= displayValue($application['email_id']) ?><br>
+                    <?= displayValue($application['mobile_number']) ?><br>
+                    <?= displayValue($application['correspondence_address']) ?><br>
                     <?= displayValue($application['city']) ?>, <?= displayValue($application['postal_code']) ?>
                 </div>
 
@@ -748,23 +800,182 @@ function displayValue($value) {
         document.getElementById('discount').addEventListener('input', updateTotals);
         document.getElementById('tax_rate').addEventListener('input', updateTotals);
 
-        // Download PDF function
+        // Enhanced Download PDF function
         function downloadInvoice() {
-            // Create a new window with the invoice content for PDF generation
-            const invoiceContent = document.querySelector('.invoice-container').outerHTML;
-            const printWindow = window.open('', '_blank');
+            const invoiceContent = document.querySelector('.invoice-preview').outerHTML;
+            const invoiceNumber = '<?= $invoice['invoice_number'] ?? $invoiceNumber ?>';
+            const studentName = '<?= htmlspecialchars($application['full_name'] ?? 'Student', ENT_QUOTES) ?>';
+            
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
             
             printWindow.document.write(`
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>IBMP Invoice #<?= $invoice['invoice_number'] ?></title>
+                    <title>IBMP Invoice ${invoiceNumber} - ${studentName}</title>
+                    <meta charset="UTF-8">
                     <style>
-                        ${document.querySelector('style').innerHTML}
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            background: white;
+                            padding: 15px;
+                            font-size: 14px;
+                            line-height: 1.4;
+                        }
+                        
+                        .invoice-preview {
+                            border: none;
+                            padding: 0;
+                            margin: 0;
+                            background: white;
+                            page-break-inside: avoid;
+                        }
+                        
+                        .invoice-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: flex-start;
+                            margin-bottom: 20px;
+                            flex-wrap: wrap;
+                            gap: 15px;
+                        }
+                        
+                        .company-logo {
+                            display: flex;
+                            align-items: center;
+                            gap: 15px;
+                            margin-bottom: 15px;
+                        }
+                        
+                        .logo-container {
+                            width: 120px;
+                            height: 120px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+                        
+                        .logo-image {
+                            width: 110px;
+                            height: 110px;
+                            object-fit: contain;
+                        }
+                        
+                        .company-subtitle {
+                            font-size: 0.9rem;
+                            color: #667eea;
+                            font-weight: 500;
+                            margin-bottom: 8px;
+                        }
+                        
+                        .company-address {
+                            color: #6b7280;
+                            line-height: 1.6;
+                            margin-top: 10px;
+                            font-size: 12px;
+                        }
+                        
+                        .invoice-title {
+                            font-size: 2rem;
+                            font-weight: bold;
+                            color: #667eea;
+                            margin-bottom: 15px;
+                        }
+                        
+                        .invoice-details {
+                            background: #f8f9fa;
+                            padding: 15px;
+                            border-radius: 8px;
+                        }
+                        
+                        .invoice-details table {
+                            width: 100%;
+                        }
+                        
+                        .invoice-details td {
+                            padding: 6px 0;
+                            border-bottom: 1px solid #e5e7eb;
+                        }
+                        
+                        .bill-to {
+                            margin: 20px 0;
+                            padding: 15px;
+                            background: #f8f9fa;
+                            border-radius: 8px;
+                        }
+                        
+                        .items-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                        }
+                        
+                        .items-table th, .items-table td {
+                            padding: 8px 12px;
+                            text-align: left;
+                            border-bottom: 2px solid #e5e7eb;
+                        }
+                        
+                        .items-table th {
+                            background: #667eea;
+                            color: white;
+                            font-weight: 600;
+                        }
+                        
+                        .items-table td:last-child, .items-table th:last-child {
+                            text-align: right;
+                        }
+                        
+                        .totals {
+                            margin-top: 20px;
+                            text-align: right;
+                        }
+                        
+                        .totals table {
+                            margin-left: auto;
+                            width: 300px;
+                        }
+                        
+                        .totals td {
+                            padding: 8px 12px;
+                            border-bottom: 1px solid #e5e7eb;
+                        }
+                        
+                        .total-amount {
+                            background: #667eea;
+                            color: white;
+                            font-weight: bold;
+                            font-size: 1.1rem;
+                        }
+                        
+                        .notes {
+                            margin-top: 20px;
+                            padding: 15px;
+                            background: #f8f9fa;
+                            border-radius: 8px;
+                        }
+                        
                         @media print {
-                            .no-print { display: none !important; }
-                            body { margin: 0; }
-                            .invoice-container { box-shadow: none; margin: 0; }
+                            body {
+                                padding: 0;
+                                margin: 0;
+                                font-size: 12px;
+                            }
+                            
+                            .invoice-title {
+                                font-size: 1.8rem;
+                            }
+                        }
+                        
+                        @page {
+                            size: A4;
+                            margin: 15mm;
                         }
                     </style>
                 </head>
@@ -775,6 +986,206 @@ function displayValue($value) {
             `);
             
             printWindow.document.close();
+        }
+        
+        // View fullscreen function
+        function viewFullscreen() {
+            const invoiceContent = document.querySelector('.invoice-preview').outerHTML;
+            const invoiceNumber = '<?= $invoice['invoice_number'] ?? $invoiceNumber ?>';
+            const studentName = '<?= htmlspecialchars($application['full_name'] ?? 'Student', ENT_QUOTES) ?>';
+            
+            const fullscreenWindow = window.open('', '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
+            
+            fullscreenWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>IBMP Invoice ${invoiceNumber} - ${studentName}</title>
+                    <meta charset="UTF-8">
+                    <style>
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            background: #f5f5f5;
+                            padding: 20px;
+                        }
+                        
+                        .invoice-preview {
+                            background: white;
+                            padding: 30px;
+                            border-radius: 12px;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                            max-width: 800px;
+                            margin: 0 auto;
+                        }
+                        
+                        .action-buttons {
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            display: flex;
+                            gap: 10px;
+                            z-index: 1000;
+                        }
+                        
+                        .btn {
+                            padding: 10px 20px;
+                            border: none;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            text-decoration: none;
+                            color: white;
+                        }
+                        
+                        .btn-print {
+                            background: #10b981;
+                        }
+                        
+                        .btn-close {
+                            background: #ef4444;
+                        }
+                        
+                        .invoice-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: flex-start;
+                            margin-bottom: 30px;
+                            flex-wrap: wrap;
+                            gap: 20px;
+                        }
+                        
+                        .company-logo {
+                            display: flex;
+                            align-items: center;
+                            gap: 15px;
+                            margin-bottom: 20px;
+                        }
+                        
+                        .logo-container {
+                            width: 120px;
+                            height: 120px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+                        
+                        .logo-image {
+                            width: 110px;
+                            height: 110px;
+                            object-fit: contain;
+                        }
+                        
+                        .company-subtitle {
+                            font-size: 0.9rem;
+                            color: #667eea;
+                            font-weight: 500;
+                            margin-bottom: 8px;
+                        }
+                        
+                        .company-address {
+                            color: #6b7280;
+                            line-height: 1.6;
+                            margin-top: 10px;
+                        }
+                        
+                        .invoice-title {
+                            font-size: 2.5rem;
+                            font-weight: bold;
+                            color: #667eea;
+                            margin-bottom: 20px;
+                        }
+                        
+                        .invoice-details {
+                            background: #f8f9fa;
+                            padding: 20px;
+                            border-radius: 8px;
+                        }
+                        
+                        .invoice-details table {
+                            width: 100%;
+                        }
+                        
+                        .invoice-details td {
+                            padding: 8px 0;
+                            border-bottom: 1px solid #e5e7eb;
+                        }
+                        
+                        .bill-to {
+                            margin: 30px 0;
+                            padding: 20px;
+                            background: #f8f9fa;
+                            border-radius: 8px;
+                        }
+                        
+                        .items-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 30px 0;
+                        }
+                        
+                        .items-table th, .items-table td {
+                            padding: 15px;
+                            text-align: left;
+                            border-bottom: 2px solid #e5e7eb;
+                        }
+                        
+                        .items-table th {
+                            background: #667eea;
+                            color: white;
+                            font-weight: 600;
+                        }
+                        
+                        .items-table td:last-child, .items-table th:last-child {
+                            text-align: right;
+                        }
+                        
+                        .totals {
+                            margin-top: 30px;
+                            text-align: right;
+                        }
+                        
+                        .totals table {
+                            margin-left: auto;
+                            width: 300px;
+                        }
+                        
+                        .totals td {
+                            padding: 10px 15px;
+                            border-bottom: 1px solid #e5e7eb;
+                        }
+                        
+                        .total-amount {
+                            background: #667eea;
+                            color: white;
+                            font-weight: bold;
+                            font-size: 1.1rem;
+                        }
+                        
+                        .notes {
+                            margin-top: 30px;
+                            padding: 20px;
+                            background: #f8f9fa;
+                            border-radius: 8px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="action-buttons">
+                        <button onclick="window.print()" class="btn btn-print">🖨️ Print/Download</button>
+                        <button onclick="window.close()" class="btn btn-close">✕ Close</button>
+                    </div>
+                    ${invoiceContent}
+                </body>
+                </html>
+            `);
+            
+            fullscreenWindow.document.close();
         }
     </script>
 </body>
