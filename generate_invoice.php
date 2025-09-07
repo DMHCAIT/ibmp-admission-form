@@ -318,24 +318,24 @@ function displayValue($value) {
         }
 
         .logo-container {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 70px;
+            height: 70px;
+            background: transparent;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #333;
             font-weight: bold;
             font-size: 1.2rem;
             position: relative;
         }
 
         .logo-image {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             object-fit: contain;
-            filter: invert(1);
+            margin-right: 10px;
         }
 
         .logo-text {
@@ -623,7 +623,7 @@ function displayValue($value) {
                     <div class="company-info">
                         <div class="company-logo">
                             <div class="logo-container">
-                                <img src="ibmp-logo.svg" alt="IBMP Logo" class="logo-image" onerror="this.style.display='none';">
+                                <img src="ibmp logo.png" alt="IBMP Logo" class="logo-image" onerror="this.style.display='none';">
                                 <div class="logo-text">IBMP</div>
                             </div>
                             <div>
