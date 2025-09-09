@@ -1,12 +1,20 @@
 <?php
-require_once 'config.php';
-
-// Set error reporting for debugging
+// Enable error reporting for debugging but hide from user
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 
-// Set content type for JSON response
+// Set headers for JSON response
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Headers: Content-Type');
+
+// Start output buffering to catch any unexpected output
+ob_start();
+
+// Include config file
+require_once 'config.php';
 
 try {
     // Get database connection
@@ -212,9 +220,14 @@ try {
     $stmt->bindParam(':master_certificate', $masterCertFile);
     
     // Execute the query
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        throw new Exception('Failed to save application to database');
+    }
     
     $applicationId = $pdo->lastInsertId();
+    
+    // Clear any output buffer
+    ob_clean();
     
     // Return success response
     echo json_encode([
@@ -225,15 +238,29 @@ try {
     ]);
     
 } catch (Exception $e) {
+    // Clear any output buffer
+    ob_clean();
+    
+    // Log the error
+    error_log("Submission Error: " . $e->getMessage());
+    
     // Return error response
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Error: ' . $e->getMessage(),
-        'debug' => [
-            'post_data' => $_POST,
-            'files_data' => $_FILES
+        'message' => 'Sorry, there was an error submitting your application. Please try again.',
+        'error' => $e->getMessage(),
+        'debug_info' => [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'has_config' => file_exists('config.php'),
+            'post_fields' => isset($_POST) ? array_keys($_POST) : [],
+            'file_uploads' => isset($_FILES) ? array_keys($_FILES) : []
         ]
     ]);
+} finally {
+    // End output buffering
+    if (ob_get_level() > 0) {
+        ob_end_flush();
+    }
 }
 ?>

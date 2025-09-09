@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>Admission Form - International Board of Medical Practitioners</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -388,67 +388,135 @@
                             <legend>Educational Qualification</legend>
                             <p class="note-text">Note: Please read the form carefully before filling it. Attach the required documents as mentioned in educational qualification. Result/Score of qualification examination. Incomplete application will be rejected.</p>
                             
-                            <div class="educational-table">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Level of Education</th>
-                                            <th>Name of School/College and Board/University</th>
-                                            <th>Year of Passing</th>
-                                            <th>Subject Studied</th>
-                                            <th>Marks Obtained</th>
-                                            <th>Maximum Marks</th>
-                                            <th>% of Marks</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>High School (10th Grade)</td>
-                                            <td><input type="text" name="school10th" required placeholder="School name and board"></td>
-                                            <td><input type="number" name="year10th" min="1980" max="2025" required></td>
-                                            <td><input type="text" name="subject10th" placeholder="Subjects"></td>
-                                            <td><input type="number" name="marks10th" required></td>
-                                            <td><input type="number" name="maxMarks10th" required></td>
-                                            <td><input type="number" name="percentage10th" step="0.01" readonly></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Senior High School (12th Grade)</td>
-                                            <td><input type="text" name="school12th" required placeholder="School name and board"></td>
-                                            <td><input type="number" name="year12th" min="1980" max="2025" required></td>
-                                            <td><input type="text" name="subject12th" placeholder="Subjects"></td>
-                                            <td><input type="number" name="marks12th" required></td>
-                                            <td><input type="number" name="maxMarks12th" required></td>
-                                            <td><input type="number" name="percentage12th" step="0.01" readonly></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Undergraduate (Bachelor's Degree)</td>
-                                            <td><input type="text" name="collegeUG" required placeholder="College and university"></td>
-                                            <td><input type="number" name="yearUG" min="1980" max="2025" required></td>
-                                            <td><input type="text" name="subjectUG" placeholder="Degree/Stream"></td>
-                                            <td><input type="number" name="marksUG" required></td>
-                                            <td><input type="number" name="maxMarksUG" required></td>
-                                            <td><input type="number" name="percentageUG" step="0.01" readonly></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Graduate (Master's Degree)</td>
-                                            <td><input type="text" name="collegePG" placeholder="College and university"></td>
-                                            <td><input type="number" name="yearPG" min="1980" max="2025"></td>
-                                            <td><input type="text" name="subjectPG" placeholder="Degree/Specialization"></td>
-                                            <td><input type="number" name="marksPG"></td>
-                                            <td><input type="number" name="maxMarksPG"></td>
-                                            <td><input type="number" name="percentagePG" step="0.01" readonly></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Other Qualifications</td>
-                                            <td><input type="text" name="collegeOther" placeholder="Institution name"></td>
-                                            <td><input type="number" name="yearOther" min="1980" max="2025"></td>
-                                            <td><input type="text" name="subjectOther" placeholder="Qualification"></td>
-                                            <td><input type="number" name="marksOther"></td>
-                                            <td><input type="number" name="maxMarksOther"></td>
-                                            <td><input type="number" name="percentageOther" step="0.01" readonly></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <!-- Mobile Scroll Indicator -->
+                            <div class="mobile-scroll-hint">
+                                <i class="fas fa-arrows-alt-h"></i>
+                                <span>Swipe left/right to see all fields</span>
+                            </div>
+                            
+                            <div class="educational-table-wrapper">
+                                <div class="educational-table">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th class="level-col">Level of Education</th>
+                                                <th class="institution-col">Name of School/College and Board/University</th>
+                                                <th class="year-col">Year of Passing</th>
+                                                <th class="subject-col">Subject Studied</th>
+                                                <th class="marks-col">Marks Obtained</th>
+                                                <th class="max-marks-col">Maximum Marks</th>
+                                                <th class="percentage-col">% of Marks</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="level-cell">High School (10th Grade)</td>
+                                                <td class="institution-cell">
+                                                    <input type="text" name="school10th" required placeholder="School name and board" title="Enter school name and board">
+                                                </td>
+                                                <td class="year-cell">
+                                                    <input type="number" name="year10th" min="1980" max="2025" required title="Year of passing">
+                                                </td>
+                                                <td class="subject-cell">
+                                                    <input type="text" name="subject10th" placeholder="Subjects" title="Subjects studied">
+                                                </td>
+                                                <td class="marks-cell">
+                                                    <input type="number" name="marks10th" required title="Marks obtained">
+                                                </td>
+                                                <td class="max-marks-cell">
+                                                    <input type="number" name="maxMarks10th" required title="Maximum marks">
+                                                </td>
+                                                <td class="percentage-cell">
+                                                    <input type="number" name="percentage10th" step="0.01" readonly title="Percentage (auto-calculated)">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="level-cell">Senior High School (12th Grade)</td>
+                                                <td class="institution-cell">
+                                                    <input type="text" name="school12th" required placeholder="School name and board" title="Enter school name and board">
+                                                </td>
+                                                <td class="year-cell">
+                                                    <input type="number" name="year12th" min="1980" max="2025" required title="Year of passing">
+                                                </td>
+                                                <td class="subject-cell">
+                                                    <input type="text" name="subject12th" placeholder="Subjects" title="Subjects studied">
+                                                </td>
+                                                <td class="marks-cell">
+                                                    <input type="number" name="marks12th" required title="Marks obtained">
+                                                </td>
+                                                <td class="max-marks-cell">
+                                                    <input type="number" name="maxMarks12th" required title="Maximum marks">
+                                                </td>
+                                                <td class="percentage-cell">
+                                                    <input type="number" name="percentage12th" step="0.01" readonly title="Percentage (auto-calculated)">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="level-cell">Undergraduate (Bachelor's Degree)</td>
+                                                <td class="institution-cell">
+                                                    <input type="text" name="collegeUG" required placeholder="College and university" title="Enter college and university name">
+                                                </td>
+                                                <td class="year-cell">
+                                                    <input type="number" name="yearUG" min="1980" max="2025" required title="Year of passing">
+                                                </td>
+                                                <td class="subject-cell">
+                                                    <input type="text" name="subjectUG" placeholder="Degree/Stream" title="Degree or stream">
+                                                </td>
+                                                <td class="marks-cell">
+                                                    <input type="number" name="marksUG" required title="Marks obtained">
+                                                </td>
+                                                <td class="max-marks-cell">
+                                                    <input type="number" name="maxMarksUG" required title="Maximum marks">
+                                                </td>
+                                                <td class="percentage-cell">
+                                                    <input type="number" name="percentageUG" step="0.01" readonly title="Percentage (auto-calculated)">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="level-cell">Graduate (Master's Degree)</td>
+                                                <td class="institution-cell">
+                                                    <input type="text" name="collegePG" placeholder="College and university" title="Enter college and university name">
+                                                </td>
+                                                <td class="year-cell">
+                                                    <input type="number" name="yearPG" min="1980" max="2025" title="Year of passing">
+                                                </td>
+                                                <td class="subject-cell">
+                                                    <input type="text" name="subjectPG" placeholder="Degree/Specialization" title="Degree or specialization">
+                                                </td>
+                                                <td class="marks-cell">
+                                                    <input type="number" name="marksPG" title="Marks obtained">
+                                                </td>
+                                                <td class="max-marks-cell">
+                                                    <input type="number" name="maxMarksPG" title="Maximum marks">
+                                                </td>
+                                                <td class="percentage-cell">
+                                                    <input type="number" name="percentagePG" step="0.01" readonly title="Percentage (auto-calculated)">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="level-cell">Other Qualifications</td>
+                                                <td class="institution-cell">
+                                                    <input type="text" name="collegeOther" placeholder="Institution name" title="Enter institution name">
+                                                </td>
+                                                <td class="year-cell">
+                                                    <input type="number" name="yearOther" min="1980" max="2025" title="Year of completion">
+                                                </td>
+                                                <td class="subject-cell">
+                                                    <input type="text" name="subjectOther" placeholder="Qualification" title="Qualification type">
+                                                </td>
+                                                <td class="marks-cell">
+                                                    <input type="number" name="marksOther" title="Marks obtained">
+                                                </td>
+                                                <td class="max-marks-cell">
+                                                    <input type="number" name="maxMarksOther" title="Maximum marks">
+                                                </td>
+                                                <td class="percentage-cell">
+                                                    <input type="number" name="percentageOther" step="0.01" readonly title="Percentage (auto-calculated)">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </fieldset>
 

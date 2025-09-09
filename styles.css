@@ -5,7 +5,7 @@
     box-sizing: border-box;
 }
 
-/* Improved Visual Hierarchy */
+/* Improved Visual Hierarchy with Mobile Touch Support */
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
@@ -13,6 +13,26 @@ body {
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     min-height: 100vh;
     overflow-x: hidden;
+    -webkit-text-size-adjust: 100%; /* Prevent text scaling on iOS */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    touch-action: manipulation; /* Improve touch responsiveness */
+}
+
+/* Smooth scrolling for better UX */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Better touch targets */
+button, input, select, textarea, a {
+    touch-action: manipulation;
+}
+
+/* Prevent horizontal scroll on mobile */
+html, body {
+    overflow-x: hidden;
+    width: 100%;
 }
 
 /* Clean spacing and typography */
@@ -98,10 +118,15 @@ body {
     padding: 0.875rem 1rem;
     border: 2px solid #e5e7eb;
     border-radius: 10px;
-    font-size: 0.95rem;
+    font-size: max(16px, 0.95rem); /* Prevent zoom on iOS while maintaining design */
+    min-height: 48px; /* Touch-friendly minimum height */
     transition: all 0.25s ease;
     background: white;
     color: #1f2937;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    touch-action: manipulation;
 }
 
 .form-group input:focus,
@@ -1181,39 +1206,114 @@ body {
         font-size: 1rem; /* Prevent zoom on iOS */
     }
     
+    /* Mobile scroll hint */
+    .mobile-scroll-hint {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #92400e;
+        border: 1px solid #f59e0b;
+    }
+    
+    .mobile-scroll-hint i {
+        font-size: 1.2rem;
+        animation: bounce-horizontal 2s infinite;
+    }
+    
+    @keyframes bounce-horizontal {
+        0%, 20%, 50%, 80%, 100% { transform: translateX(0); }
+        40% { transform: translateX(-5px); }
+        60% { transform: translateX(5px); }
+    }
+    
+    /* Educational table wrapper for better mobile scrolling */
+    .educational-table-wrapper {
+        position: relative;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        background: white;
+    }
+    
     /* Mobile-friendly table styles */
     .educational-table,
     .family-details-table {
         font-size: 0.85rem;
-        overflow-x: auto; /* Allow horizontal scroll if needed */
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        min-width: 100%;
     }
     
     .educational-table table,
     .family-details-table table {
-        min-width: 600px; /* Ensure table doesn't get too cramped */
+        min-width: 800px; /* Minimum width to prevent cramping */
+        width: 100%;
+        border-collapse: collapse;
     }
+    
+    /* Column-specific widths for better mobile layout */
+    .level-col { min-width: 160px; }
+    .institution-col { min-width: 200px; }
+    .year-col { min-width: 80px; }
+    .subject-col { min-width: 120px; }
+    .marks-col { min-width: 80px; }
+    .max-marks-col { min-width: 80px; }
+    .percentage-col { min-width: 80px; }
     
     .educational-table thead th,
     .family-details-table thead th {
-        padding: 0.75rem 0.5rem;
+        padding: 1rem 0.75rem;
         font-size: 0.8rem;
         position: sticky;
         top: 0;
         background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-        z-index: 1;
+        z-index: 10;
+        white-space: nowrap;
+        text-align: center;
+        font-weight: 600;
+        border-right: 1px solid rgba(255,255,255,0.2);
     }
     
     .educational-table tbody td,
     .family-details-table tbody td {
         padding: 0.5rem;
+        border-right: 1px solid #e5e7eb;
+        vertical-align: middle;
     }
     
     .educational-table tbody input,
     .family-details-table tbody input {
-        padding: 0.6rem 0.5rem;
-        min-height: 44px;
+        padding: 0.75rem 0.5rem;
+        min-height: 48px; /* Better touch target */
         font-size: 0.9rem;
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        background: white;
+        transition: all 0.2s ease;
+    }
+    
+    .educational-table tbody input:focus,
+    .family-details-table tbody input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        background: #f8faff;
+    }
+    
+    /* Level cell styling */
+    .level-cell {
+        background: #f8fafc;
+        font-weight: 500;
+        color: #475569;
+        font-size: 0.85rem;
+        text-align: center;
+        border-right: 2px solid #e2e8f0 !important;
     }
     
     .btn-submit {
@@ -1339,22 +1439,91 @@ body {
     }
     
     /* Enhanced mobile table experience */
-    .educational-table, .family-details-table {
-        font-size: 0.8rem;
+    .educational-table-wrapper {
         border-radius: 10px;
         margin: 1rem 0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        background: white;
+        position: relative;
     }
     
-    .educational-table th, .family-details-table th,
+    .educational-table-wrapper::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        width: 20px;
+        height: 20px;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.3));
+        border-radius: 50%;
+        transform: translateY(-50%);
+        animation: scroll-indicator 2s ease-in-out infinite;
+        pointer-events: none;
+    }
+    
+    @keyframes scroll-indicator {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+    }
+    
+    .mobile-scroll-hint {
+        margin-bottom: 0.75rem;
+        padding: 0.75rem;
+        font-size: 0.8rem;
+        border-radius: 6px;
+    }
+    
+    .mobile-scroll-hint span {
+        font-weight: 500;
+    }
+    
+    .educational-table, .family-details-table {
+        font-size: 0.75rem;
+        overflow-x: auto;
+    }
+    
+    .educational-table table, .family-details-table table {
+        min-width: 700px; /* Ensure minimum readable width on mobile */
+    }
+    
+    .educational-table th, .family-details-table th {
+        padding: 0.75rem 0.4rem;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        text-align: center;
+    }
+    
     .educational-table td, .family-details-table td {
-        padding: 0.5rem 0.3rem;
+        padding: 0.4rem 0.3rem;
+        min-width: 80px; /* Ensure minimum cell width */
+    }
+    
+    .level-cell {
+        min-width: 120px !important;
+        font-size: 0.7rem !important;
+        padding: 0.5rem 0.3rem !important;
+        text-align: center !important;
+    }
+    
+    .institution-cell {
+        min-width: 150px !important;
     }
     
     .educational-table input, .family-details-table input {
-        padding: 0.5rem;
-        font-size: 0.8rem;
-        min-height: 40px;
+        padding: 0.6rem 0.4rem;
+        font-size: 0.75rem;
+        min-height: 44px; /* Touch-friendly target */
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 3px;
+    }
+    
+    .educational-table input:focus, .family-details-table input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+        transform: scale(1.02);
+        z-index: 5;
+        position: relative;
     }
     
     .btn-submit {
