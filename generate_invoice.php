@@ -682,9 +682,9 @@ function displayValue($value) {
                             <div>
                                 <div class="company-subtitle">Professional Medical Education & Training</div>
                                 <div class="company-address">
-                                    Khatana Farm, First Floor No: 581/2<br>
-                                    Sultanpur, New Delhi 110030<br>
-                                    India
+                                    600 N Broad Street Suite 5 #3695<br>
+                                    Middletown, DE 19709<br>
+                                    USA
                                 </div>
                             </div>
                         </div>

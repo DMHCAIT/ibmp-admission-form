@@ -479,8 +479,20 @@ function formatDate($date) {
                             <div class="info-value"><?= displayValue($application['gender']) ?></div>
                         </div>
                         <div class="info-item">
+                            <div class="info-label">Age</div>
+                            <div class="info-value"><?= displayValue($application['age']) ?></div>
+                        </div>
+                        <div class="info-item">
                             <div class="info-label">Nationality</div>
                             <div class="info-value"><?= displayValue($application['nationality']) ?></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Religion</div>
+                            <div class="info-value"><?= displayValue($application['religion']) ?></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">How did you find us?</div>
+                            <div class="info-value"><?= displayValue($application['referral_source']) ?></div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Address</div>
@@ -496,6 +508,31 @@ function formatDate($date) {
                         </div>
                     </div>
                 </div>
+
+                <!-- Parent Information -->
+                <?php if ($application['parent_name'] || $application['parent_occupation'] || $application['parent_mobile'] || $application['parent_email']): ?>
+                <div class="section">
+                    <h3 class="section-title">👪 Parent Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Parent Name</div>
+                            <div class="info-value"><?= displayValue($application['parent_name']) ?></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Occupation</div>
+                            <div class="info-value"><?= displayValue($application['parent_occupation']) ?></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Mobile Number</div>
+                            <div class="info-value"><?= displayValue($application['parent_mobile']) ?></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Email Address</div>
+                            <div class="info-value"><?= displayValue($application['parent_email']) ?></div>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
 
                 <!-- Course Information -->
                 <div class="section">
@@ -537,7 +574,7 @@ function formatDate($date) {
                         </thead>
                         <tbody>
                             <tr>
-                                <td><strong>Matriculation</strong></td>
+                                <td><strong>High School (10th Grade)</strong></td>
                                 <td><?= displayValue($application['matric_board']) ?></td>
                                 <td><?= displayValue($application['matric_year']) ?></td>
                                 <td><?= displayValue($application['matric_marks']) ?></td>
@@ -546,7 +583,7 @@ function formatDate($date) {
                                 <td>-</td>
                             </tr>
                             <tr>
-                                <td><strong>Intermediate</strong></td>
+                                <td><strong>Senior High School (12th Grade)</strong></td>
                                 <td><?= displayValue($application['inter_board']) ?></td>
                                 <td><?= displayValue($application['inter_year']) ?></td>
                                 <td><?= displayValue($application['inter_marks']) ?></td>
@@ -555,7 +592,7 @@ function formatDate($date) {
                                 <td>-</td>
                             </tr>
                             <tr>
-                                <td><strong>Bachelor's</strong></td>
+                                <td><strong>Undergraduate (Bachelor's Degree)</strong></td>
                                 <td><?= displayValue($application['bachelor_university']) ?></td>
                                 <td><?= displayValue($application['bachelor_year']) ?></td>
                                 <td>-</td>
@@ -565,7 +602,7 @@ function formatDate($date) {
                             </tr>
                             <?php if ($application['master_university']): ?>
                             <tr>
-                                <td><strong>Master's</strong></td>
+                                <td><strong>Graduate (Master's Degree)</strong></td>
                                 <td><?= displayValue($application['master_university']) ?></td>
                                 <td><?= displayValue($application['master_year']) ?></td>
                                 <td>-</td>
@@ -650,10 +687,15 @@ function formatDate($date) {
                         <?php 
                         $fileFields = [
                             'photo' => 'Passport Photo',
-                            'matric_certificate' => 'Matriculation Certificate', 
-                            'inter_certificate' => 'Intermediate Certificate',
-                            'bachelor_certificate' => 'Bachelor Certificate',
-                            'master_certificate' => 'Master Certificate'
+                            'cv' => 'CV/Resume',
+                            'educational_certificates' => 'Educational Certificates',
+                            'marksheets' => 'Marksheets',
+                            'identity_proof' => 'Identity Proof',
+                            'digital_signature' => 'Digital Signature',
+                            'matric_certificate' => 'High School Certificate', 
+                            'inter_certificate' => 'Senior High School Certificate',
+                            'bachelor_certificate' => 'Undergraduate Certificate',
+                            'master_certificate' => 'Graduate Certificate'
                         ];
                         
                         $hasFiles = false;

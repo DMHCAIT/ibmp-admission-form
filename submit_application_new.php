@@ -53,8 +53,13 @@ try {
     
     // Handle file uploads with multiple possible field names
     $photoFile = uploadFile('photo', $uploadDir) ?? uploadFile('passportPhoto', $uploadDir);
-    $matricCertFile = uploadFile('matricCertificate', $uploadDir) ?? uploadFile('educationalCertificates', $uploadDir);
-    $interCertFile = uploadFile('interCertificate', $uploadDir) ?? uploadFile('marksheets', $uploadDir);
+    $cvFile = uploadFile('cv', $uploadDir);
+    $educationalCertificatesFile = uploadFile('educationalCertificates', $uploadDir);
+    $marksheetsFile = uploadFile('marksheets', $uploadDir);
+    $identityProofFile = uploadFile('identityProof', $uploadDir);
+    $digitalSignatureFile = uploadFile('digitalSignature', $uploadDir);
+    $matricCertFile = uploadFile('matricCertificate', $uploadDir);
+    $interCertFile = uploadFile('interCertificate', $uploadDir);
     $bachelorCertFile = uploadFile('bachelorCertificate', $uploadDir);
     $masterCertFile = uploadFile('masterCertificate', $uploadDir);
     
@@ -71,8 +76,9 @@ try {
     
     // Prepare SQL with correct field names that match admin panel
     $sql = "INSERT INTO applications (
-        first_name, last_name, email, phone_number, date_of_birth, gender,
-        nationality, address, city, postal_code,
+        title, first_name, last_name, full_name, email_id, phone_number, mobile_number, date_of_birth, gender, age,
+        nationality, religion, referral_source, address, city, postal_code,
+        parent_name, parent_occupation, parent_mobile, parent_email,
         course_type, course_name, preferred_start_date, study_mode,
         matric_board, matric_year, matric_marks, matric_total_marks, matric_percentage,
         inter_board, inter_year, inter_marks, inter_total_marks, inter_percentage,
@@ -81,11 +87,12 @@ try {
         sponsor_name, sponsor_relationship, sponsor_income, sponsor_occupation,
         payment_option,
         emergency_contact_name, emergency_contact_relationship, emergency_contact_phone, emergency_contact_address,
-        photo, matric_certificate, inter_certificate, bachelor_certificate, master_certificate,
+        photo, cv, educational_certificates, marksheets, identity_proof, digital_signature, matric_certificate, inter_certificate, bachelor_certificate, master_certificate,
         status, created_at, updated_at
     ) VALUES (
-        :first_name, :last_name, :email, :phone_number, :date_of_birth, :gender,
-        :nationality, :address, :city, :postal_code,
+        :title, :first_name, :last_name, :full_name, :email_id, :phone_number, :mobile_number, :date_of_birth, :gender, :age,
+        :nationality, :religion, :referral_source, :address, :city, :postal_code,
+        :parent_name, :parent_occupation, :parent_mobile, :parent_email,
         :course_type, :course_name, :preferred_start_date, :study_mode,
         :matric_board, :matric_year, :matric_marks, :matric_total_marks, :matric_percentage,
         :inter_board, :inter_year, :inter_marks, :inter_total_marks, :inter_percentage,
@@ -94,23 +101,41 @@ try {
         :sponsor_name, :sponsor_relationship, :sponsor_income, :sponsor_occupation,
         :payment_option,
         :emergency_contact_name, :emergency_contact_relationship, :emergency_contact_phone, :emergency_contact_address,
-        :photo, :matric_certificate, :inter_certificate, :bachelor_certificate, :master_certificate,
+        :photo, :cv, :educational_certificates, :marksheets, :identity_proof, :digital_signature, :matric_certificate, :inter_certificate, :bachelor_certificate, :master_certificate,
         'pending', NOW(), NOW()
     )";
     
     $stmt = $pdo->prepare($sql);
     
     // Bind parameters with multiple field name support
+    $title = getField('title');
+    $fullName = $firstName . ' ' . $lastName;
+    $emailId = getField('email', 'emailId') ?: getField('email_id');
+    $phoneNumber = getField('phone', 'phoneNumber');
+    $mobileNumber = getField('mobileNumber', 'mobile_number');
+    
+    $stmt->bindParam(':title', $title);
     $stmt->bindParam(':first_name', $firstName);
     $stmt->bindParam(':last_name', $lastName);
-    $stmt->bindParam(':email', getField('email', 'emailId') ?: getField('email_id'));
-    $stmt->bindParam(':phone_number', getField('phone', 'phoneNumber') ?: getField('mobileNumber'));
+    $stmt->bindParam(':full_name', $fullName);
+    $stmt->bindParam(':email_id', $emailId);
+    $stmt->bindParam(':phone_number', $phoneNumber);
+    $stmt->bindParam(':mobile_number', $mobileNumber);
     $stmt->bindParam(':date_of_birth', getField('dateOfBirth', 'date_of_birth'));
     $stmt->bindParam(':gender', getField('gender'));
+    $stmt->bindParam(':age', getField('age'));
     $stmt->bindParam(':nationality', getField('nationality'));
+    $stmt->bindParam(':religion', getField('religion'));
+    $stmt->bindParam(':referral_source', getField('referralSource', 'otherReferralSource'));
     $stmt->bindParam(':address', getField('address', 'correspondenceAddress'));
     $stmt->bindParam(':city', getField('city'));
     $stmt->bindParam(':postal_code', getField('postalCode', 'postal_code'));
+    
+    // Parent information
+    $stmt->bindParam(':parent_name', getField('parentName', 'parent_name'));
+    $stmt->bindParam(':parent_occupation', getField('parentOccupation', 'parent_occupation'));
+    $stmt->bindParam(':parent_mobile', getField('parentMobile', 'parent_mobile'));
+    $stmt->bindParam(':parent_email', getField('parentEmail', 'parent_email'));
     
     // Course information with field mapping
     $stmt->bindParam(':course_type', getField('courseType', 'course_type'));
@@ -176,6 +201,11 @@ try {
     
     // File uploads
     $stmt->bindParam(':photo', $photoFile);
+    $stmt->bindParam(':cv', $cvFile);
+    $stmt->bindParam(':educational_certificates', $educationalCertificatesFile);
+    $stmt->bindParam(':marksheets', $marksheetsFile);
+    $stmt->bindParam(':identity_proof', $identityProofFile);
+    $stmt->bindParam(':digital_signature', $digitalSignatureFile);
     $stmt->bindParam(':matric_certificate', $matricCertFile);
     $stmt->bindParam(':inter_certificate', $interCertFile);
     $stmt->bindParam(':bachelor_certificate', $bachelorCertFile);

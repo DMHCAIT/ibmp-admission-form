@@ -453,8 +453,8 @@ function displayValue($value) {
                         📚 Educational Background
                     </div>
                     <div class="section-content">
-                        <!-- Matriculation -->
-                        <h4 style="color: #1e40af; margin-bottom: 1rem;">Matriculation (Grade 10)</h4>
+                        <!-- High School -->
+                        <h4 style="color: #1e40af; margin-bottom: 1rem;">High School (10th Grade)</h4>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="matric_board">Board</label>
@@ -478,8 +478,8 @@ function displayValue($value) {
                             </div>
                         </div>
 
-                        <!-- Intermediate -->
-                        <h4 style="color: #1e40af; margin: 2rem 0 1rem;">Intermediate (Grade 12)</h4>
+                        <!-- Senior High School -->
+                        <h4 style="color: #1e40af; margin: 2rem 0 1rem;">Senior High School (12th Grade)</h4>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="inter_board">Board</label>
@@ -503,8 +503,8 @@ function displayValue($value) {
                             </div>
                         </div>
 
-                        <!-- Bachelor's -->
-                        <h4 style="color: #1e40af; margin: 2rem 0 1rem;">Bachelor's Degree</h4>
+                        <!-- Undergraduate -->
+                        <h4 style="color: #1e40af; margin: 2rem 0 1rem;">Undergraduate (Bachelor's Degree)</h4>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="bachelor_university">University</label>
@@ -528,8 +528,8 @@ function displayValue($value) {
                             </div>
                         </div>
 
-                        <!-- Master's -->
-                        <h4 style="color: #1e40af; margin: 2rem 0 1rem;">Master's Degree</h4>
+                        <!-- Graduate -->
+                        <h4 style="color: #1e40af; margin: 2rem 0 1rem;">Graduate (Master's Degree)</h4>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="master_university">University</label>

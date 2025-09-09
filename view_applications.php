@@ -61,6 +61,228 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     }
 }
 
+// Handle export functionality
+if (isset($_GET['export'])) {
+    $exportType = $_GET['export'];
+    
+    // Get filter parameters for export
+    $statusFilter = $_GET['status'] ?? '';
+    $courseFilter = $_GET['course'] ?? '';
+    $dateFrom = $_GET['date_from'] ?? '';
+    $dateTo = $_GET['date_to'] ?? '';
+    $search = $_GET['search'] ?? '';
+    
+    // Build query for export
+    $whereConditions = [];
+    $params = [];
+    
+    if ($statusFilter) {
+        $whereConditions[] = "status = ?";
+        $params[] = $statusFilter;
+    }
+    
+    if ($courseFilter) {
+        $whereConditions[] = "course_name LIKE ?";
+        $params[] = "%$courseFilter%";
+    }
+    
+    if ($dateFrom) {
+        $whereConditions[] = "DATE(created_at) >= ?";
+        $params[] = $dateFrom;
+    }
+    
+    if ($dateTo) {
+        $whereConditions[] = "DATE(created_at) <= ?";
+        $params[] = $dateTo;
+    }
+    
+    if ($search) {
+        $whereConditions[] = "(full_name LIKE ? OR email_id LIKE ? OR mobile_number LIKE ? OR phone_number LIKE ? OR id LIKE ?)";
+        $params[] = "%$search%";
+        $params[] = "%$search%";
+        $params[] = "%$search%";
+        $params[] = "%$search%";
+        $params[] = "%$search%";
+    }
+    
+    $whereClause = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
+    
+    // Select all fields for export
+    $exportQuery = "SELECT 
+        id, title, full_name, first_name, last_name, email_id, phone_number, mobile_number,
+        date_of_birth, gender, age, nationality, religion, referral_source, address, city, postal_code,
+        parent_name, parent_occupation, parent_mobile, parent_email,
+        course_type, course_name, preferred_start_date, study_mode,
+        matric_board, matric_year, matric_marks, matric_total_marks, matric_percentage,
+        inter_board, inter_year, inter_marks, inter_total_marks, inter_percentage,
+        bachelor_university, bachelor_year, bachelor_percentage, bachelor_cgpa,
+        master_university, master_year, master_percentage, master_cgpa,
+        sponsor_name, sponsor_relationship, sponsor_income, sponsor_occupation,
+        payment_option, emergency_contact_name, emergency_contact_relationship, 
+        emergency_contact_phone, emergency_contact_address, status, created_at, updated_at
+        FROM applications $whereClause ORDER BY created_at DESC";
+    
+    $stmt = $pdo->prepare($exportQuery);
+    $stmt->execute($params);
+    $applications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    if ($exportType === 'csv') {
+        // CSV Export
+        $filename = 'IBMP_Applications_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        
+        $output = fopen('php://output', 'w');
+        
+        // Add UTF-8 BOM for proper Excel display
+        fwrite($output, "\xEF\xBB\xBF");
+        
+        // CSV Headers
+        $headers = [
+            'ID', 'Title', 'Full Name', 'First Name', 'Last Name', 'Email', 'Phone', 'Mobile',
+            'Date of Birth', 'Gender', 'Age', 'Nationality', 'Religion', 'How Found Us', 'Address', 'City', 'Postal Code',
+            'Parent Name', 'Parent Occupation', 'Parent Mobile', 'Parent Email',
+            'Course Type', 'Course Name', 'Preferred Start Date', 'Study Mode',
+            'Matric Board', 'Matric Year', 'Matric Marks', 'Matric Total', 'Matric %',
+            'Inter Board', 'Inter Year', 'Inter Marks', 'Inter Total', 'Inter %',
+            'Bachelor University', 'Bachelor Year', 'Bachelor %', 'Bachelor CGPA',
+            'Master University', 'Master Year', 'Master %', 'Master CGPA',
+            'Sponsor Name', 'Sponsor Relationship', 'Sponsor Income', 'Sponsor Occupation',
+            'Payment Option', 'Emergency Name', 'Emergency Relationship', 'Emergency Phone', 'Emergency Address',
+            'Status', 'Submitted Date', 'Last Updated'
+        ];
+        
+        fputcsv($output, $headers);
+        
+        foreach ($applications as $app) {
+            $row = [
+                $app['id'], $app['title'], $app['full_name'], $app['first_name'], $app['last_name'],
+                $app['email_id'], $app['phone_number'], $app['mobile_number'],
+                $app['date_of_birth'], $app['gender'], $app['age'], $app['nationality'], $app['religion'], 
+                $app['referral_source'], $app['address'], $app['city'], $app['postal_code'],
+                $app['parent_name'], $app['parent_occupation'], $app['parent_mobile'], $app['parent_email'],
+                $app['course_type'], $app['course_name'], $app['preferred_start_date'], $app['study_mode'],
+                $app['matric_board'], $app['matric_year'], $app['matric_marks'], $app['matric_total_marks'], $app['matric_percentage'],
+                $app['inter_board'], $app['inter_year'], $app['inter_marks'], $app['inter_total_marks'], $app['inter_percentage'],
+                $app['bachelor_university'], $app['bachelor_year'], $app['bachelor_percentage'], $app['bachelor_cgpa'],
+                $app['master_university'], $app['master_year'], $app['master_percentage'], $app['master_cgpa'],
+                $app['sponsor_name'], $app['sponsor_relationship'], $app['sponsor_income'], $app['sponsor_occupation'],
+                $app['payment_option'], $app['emergency_contact_name'], $app['emergency_contact_relationship'],
+                $app['emergency_contact_phone'], $app['emergency_contact_address'],
+                $app['status'], $app['created_at'], $app['updated_at']
+            ];
+            fputcsv($output, $row);
+        }
+        
+        fclose($output);
+        exit();
+    }
+    
+    if ($exportType === 'excel') {
+        // Excel Export (HTML table format that Excel can open)
+        $filename = 'IBMP_Applications_' . date('Y-m-d_H-i-s') . '.xls';
+        
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        
+        echo '<html>';
+        echo '<head><meta charset="UTF-8"></head>';
+        echo '<body>';
+        echo '<table border="1">';
+        
+        // Excel Headers
+        echo '<tr>';
+        $headers = [
+            'ID', 'Title', 'Full Name', 'First Name', 'Last Name', 'Email', 'Phone', 'Mobile',
+            'Date of Birth', 'Gender', 'Age', 'Nationality', 'Religion', 'How Found Us', 'Address', 'City', 'Postal Code',
+            'Parent Name', 'Parent Occupation', 'Parent Mobile', 'Parent Email',
+            'Course Type', 'Course Name', 'Preferred Start Date', 'Study Mode',
+            'Matric Board', 'Matric Year', 'Matric Marks', 'Matric Total', 'Matric %',
+            'Inter Board', 'Inter Year', 'Inter Marks', 'Inter Total', 'Inter %',
+            'Bachelor University', 'Bachelor Year', 'Bachelor %', 'Bachelor CGPA',
+            'Master University', 'Master Year', 'Master %', 'Master CGPA',
+            'Sponsor Name', 'Sponsor Relationship', 'Sponsor Income', 'Sponsor Occupation',
+            'Payment Option', 'Emergency Name', 'Emergency Relationship', 'Emergency Phone', 'Emergency Address',
+            'Status', 'Submitted Date', 'Last Updated'
+        ];
+        
+        foreach ($headers as $header) {
+            echo '<th>' . htmlspecialchars($header) . '</th>';
+        }
+        echo '</tr>';
+        
+        foreach ($applications as $app) {
+            echo '<tr>';
+            echo '<td>' . htmlspecialchars($app['id'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['title'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['full_name'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['first_name'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['last_name'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['email_id'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['phone_number'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['mobile_number'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['date_of_birth'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['gender'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['age'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['nationality'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['religion'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['referral_source'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['address'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['city'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['postal_code'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['parent_name'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['parent_occupation'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['parent_mobile'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['parent_email'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['course_type'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['course_name'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['preferred_start_date'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['study_mode'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['matric_board'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['matric_year'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['matric_marks'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['matric_total_marks'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['matric_percentage'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['inter_board'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['inter_year'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['inter_marks'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['inter_total_marks'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['inter_percentage'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['bachelor_university'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['bachelor_year'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['bachelor_percentage'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['bachelor_cgpa'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['master_university'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['master_year'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['master_percentage'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['master_cgpa'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['sponsor_name'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['sponsor_relationship'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['sponsor_income'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['sponsor_occupation'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['payment_option'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['emergency_contact_name'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['emergency_contact_relationship'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['emergency_contact_phone'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['emergency_contact_address'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['status'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['created_at'] ?? '') . '</td>';
+            echo '<td>' . htmlspecialchars($app['updated_at'] ?? '') . '</td>';
+            echo '</tr>';
+        }
+        
+        echo '</table>';
+        echo '</body>';
+        echo '</html>';
+        exit();
+    }
+}
+
 // Get filter parameters
 $statusFilter = $_GET['status'] ?? '';
 $courseFilter = $_GET['course'] ?? '';
@@ -513,6 +735,62 @@ function formatDate($date) {
         .export-buttons {
             display: flex;
             gap: 1rem;
+            align-items: center;
+        }
+        
+        .export-buttons .btn {
+            position: relative;
+            overflow: hidden;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .export-buttons .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .export-buttons .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        .export-buttons .btn-success:hover {
+            background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+        }
+        
+        .export-buttons .btn-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+            color: white;
+        }
+        
+        .export-buttons .btn-info:hover {
+            background: linear-gradient(135deg, #6f42c1 0%, #17a2b8 100%);
+        }
+        
+        .export-buttons .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #212529;
+        }
+        
+        .export-buttons .btn-warning:hover {
+            background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);
+        }
+        
+        .export-buttons .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+            color: white;
+        }
+        
+        .export-buttons .btn-danger:hover {
+            background: linear-gradient(135deg, #e83e8c 0%, #dc3545 100%);
         }
 
         .modal {
@@ -745,8 +1023,18 @@ function formatDate($date) {
                 <div class="section-header">
                     <h2>📋 Applications (<?= count($applications) ?> found)</h2>
                     <div class="export-buttons">
-                        <a href="?<?= http_build_query(array_merge($_GET, ['export' => 'csv'])) ?>" class="btn btn-success">📊 Export CSV</a>
-                        <a href="?<?= http_build_query(array_merge($_GET, ['export' => 'excel'])) ?>" class="btn btn-info">📈 Export Excel</a>
+                        <a href="database_analysis.php" class="btn btn-warning" title="Analyze database structure">
+                            🔍 Database Analysis
+                        </a>
+                        <a href="fix_database.php" class="btn btn-danger" title="Fix missing database fields">
+                            🔧 Fix Database
+                        </a>
+                        <a href="?<?= http_build_query(array_merge($_GET, ['export' => 'csv'])) ?>" class="btn btn-success" title="Export <?= count($applications) ?> records as CSV">
+                            📊 Export CSV (<?= count($applications) ?> records)
+                        </a>
+                        <a href="?<?= http_build_query(array_merge($_GET, ['export' => 'excel'])) ?>" class="btn btn-info" title="Export <?= count($applications) ?> records as Excel">
+                            📈 Export Excel (<?= count($applications) ?> records)
+                        </a>
                     </div>
                 </div>
 
@@ -898,6 +1186,88 @@ function formatDate($date) {
                 console.log('Search for:', this.value);
             }, 500);
         });
+
+        // Enhanced Export Functionality
+        document.querySelectorAll('.export-buttons .btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const originalText = this.innerHTML;
+                const exportType = this.href.includes('csv') ? 'CSV' : 'Excel';
+                
+                // Show loading state
+                this.innerHTML = `⏳ Generating ${exportType}...`;
+                this.style.pointerEvents = 'none';
+                this.style.opacity = '0.7';
+                
+                // Create a temporary link to trigger download
+                const tempLink = document.createElement('a');
+                tempLink.href = this.href;
+                tempLink.style.display = 'none';
+                document.body.appendChild(tempLink);
+                
+                // Prevent default and use our custom handler
+                e.preventDefault();
+                
+                // Trigger download
+                window.location.href = this.href;
+                
+                // Reset button after a short delay
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.style.pointerEvents = 'auto';
+                    this.style.opacity = '1';
+                    
+                    // Show success message
+                    showExportSuccess(exportType);
+                }, 2000);
+                
+                document.body.removeChild(tempLink);
+            });
+        });
+        
+        // Show export success message
+        function showExportSuccess(type) {
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #28a745, #20c997);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+                z-index: 1001;
+                font-weight: 600;
+                animation: slideInRight 0.3s ease;
+            `;
+            message.innerHTML = `✅ ${type} export completed successfully!`;
+            
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => {
+                    if (document.body.contains(message)) {
+                        document.body.removeChild(message);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // Add CSS animations for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>

@@ -374,7 +374,7 @@ header('Content-Type: text/html; charset=utf-8');
             <div class="section-title">Educational Background</div>
             
             <!-- 10th Standard -->
-            <h4 style="margin-bottom: 10px;">10th Standard (Matriculation)</h4>
+            <h4 style="margin-bottom: 10px;">High School (10th Grade)</h4>
             <table class="table">
                 <tr>
                     <th>School/Board</th>
@@ -393,7 +393,7 @@ header('Content-Type: text/html; charset=utf-8');
             </table>
 
             <!-- 12th Standard -->
-            <h4 style="margin-bottom: 10px;">12th Standard (Intermediate)</h4>
+            <h4 style="margin-bottom: 10px;">Senior High School (12th Grade)</h4>
             <table class="table">
                 <tr>
                     <th>School/Board</th>
@@ -411,9 +411,9 @@ header('Content-Type: text/html; charset=utf-8');
                 </tr>
             </table>
 
-            <!-- Bachelor's Degree -->
+            <!-- Undergraduate Degree -->
             <?php if ($application['college_ug'] || $application['bachelor_university']): ?>
-            <h4 style="margin-bottom: 10px;">Bachelor's Degree</h4>
+            <h4 style="margin-bottom: 10px;">Undergraduate (Bachelor's Degree)</h4>
             <table class="table">
                 <tr>
                     <th>University/College</th>
@@ -435,9 +435,9 @@ header('Content-Type: text/html; charset=utf-8');
             </table>
             <?php endif; ?>
 
-            <!-- Master's Degree -->
+            <!-- Graduate Degree -->
             <?php if ($application['college_pg'] || $application['master_university']): ?>
-            <h4 style="margin-bottom: 10px;">Master's Degree</h4>
+            <h4 style="margin-bottom: 10px;">Graduate (Master's Degree)</h4>
             <table class="table">
                 <tr>
                     <th>University/College</th>
