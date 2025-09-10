@@ -1,38 +1,178 @@
 <?php
-// Enable error reporting for debugging but hide from user
+/**
+ * IBMP Admission Form Submission Handler
+ * Handles form submissions with proper error handling and validation
+ */
+
+// Start session and output buffering
+session_start();
+ob_start();
+
+// Set error reporting (log errors but don't display them)
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
-// Set headers for JSON response
-header('Content-Type: application/json');
+// Set CORS headers for cross-origin requests
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, X-Requested-With');
+header('Access-Control-Max-Age: 86400');
 
-// Start output buffering to catch any unexpected output
-ob_start();
+// Set JSON response headers
+header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-cache, must-revalidate');
 
-// Include config file
-require_once 'config.php';
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
-try {
-    // Get database connection
-    $pdo = getDatabaseConnection();
-    
-    // Check if it's a POST request
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        throw new Exception('Only POST requests are allowed');
+/**
+ * Send JSON response and exit
+ */
+function sendResponse($success, $message, $data = []) {
+    // Clear any output that might have been generated
+    if (ob_get_level()) {
+        ob_clean();
     }
+    
+    $response = [
+        'success' => $success,
+        'message' => $message,
+        'timestamp' => date('c')
+    ];
+    
+    if (!empty($data)) {
+        $response = array_merge($response, $data);
+    }
+    
+    // Set appropriate HTTP status code
+    http_response_code($success ? 200 : 400);
+    
+    echo json_encode($response);
+    exit();
+}
+
+/**
+ * Validate required configuration
+ */
+try {
+    if (!file_exists('config.php')) {
+        sendResponse(false, 'System configuration not found. Please contact administrator.');
+    }
+    
+    require_once 'config.php';
+    
+    // Verify required constants are defined
+    $requiredConstants = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS'];
+    foreach ($requiredConstants as $constant) {
+        if (!defined($constant)) {
+            sendResponse(false, 'System configuration incomplete. Please contact administrator.');
+        }
+    }
+} catch (Exception $e) {
+    error_log("Config Error: " . $e->getMessage());
+    sendResponse(false, 'Configuration error. Please contact administrator.');
+}
+
+/**
+ * Validate request method
+ */
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    sendResponse(false, 'Invalid request method. Please submit the form properly.');
+}
+
+/**
+ * Main submission handler
+ */
+try {
+    // Connect to database
+    $pdo = new PDO(
+        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
+        DB_USER,
+        DB_PASS,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+        ]
+    );
+    
+    // Verify table exists
+    $stmt = $pdo->query("SHOW TABLES LIKE 'applications'");
+    if ($stmt->rowCount() === 0) {
+        sendResponse(false, 'Database not properly initialized. Please contact administrator.');
+    }
+    
+    // Get and validate form data
+    $formData = $_POST;
+    
+    // Enhanced debug logging
+    error_log("IBMP Form Data Keys: " . json_encode(array_keys($formData)));
+    error_log("IBMP Form Data Count: " . count($formData));
+    error_log("IBMP Required Fields Check - fullName: " . ($formData['fullName'] ?? 'MISSING') . ", emailId: " . ($formData['emailId'] ?? 'MISSING'));
+    
+    // Check if we have any data at all
+    if (empty($formData)) {
+        sendResponse(false, 'No form data received. Please try submitting the form again.');
+    }
+    
+    // Check for critical required fields that should always be present
+    $criticalFields = ['fullName', 'emailId'];
+    $missingCritical = [];
+    foreach ($criticalFields as $field) {
+        if (empty($formData[$field])) {
+            $missingCritical[] = $field;
+        }
+    }
+    
+    if (!empty($missingCritical)) {
+        error_log("IBMP Critical fields missing: " . implode(', ', $missingCritical));
+        sendResponse(false, 'Required form fields are missing. Please fill in all required fields and try again.');
+    }
+    
+    // Extract and validate required fields based on actual form field names
+    $fullName = $formData['fullName'] ?? '';
+    $email = $formData['emailId'] ?? $formData['email'] ?? '';
+    
+    // Validate required fields
+    if (empty($fullName)) {
+        sendResponse(false, 'Full name is required.');
+    }
+    
+    if (empty($email)) {
+        sendResponse(false, 'Email address is required.');
+    }
+    
+    // Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        sendResponse(false, 'Please provide a valid email address.');
+    }
+    
+    // Sanitize and prepare data
+    $fullName = trim($fullName);
+    $email = trim($email);
+    
+    // Split name if needed
+    $nameParts = explode(' ', $fullName, 2);
+    $firstName = $nameParts[0];
+    $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
     
     // Handle file uploads
     $uploadDir = 'uploads/';
-    if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
+    if (!is_dir($uploadDir)) {
+        if (!mkdir($uploadDir, 0755, true)) {
+            sendResponse(false, 'File upload system not available. Please try again later.');
+        }
     }
     
-    // File upload function
-    function uploadFile($fileKey, $uploadDir) {
+    /**
+     * Safe file upload handler
+     */
+    function handleFileUpload($fileKey, $uploadDir) {
         if (!isset($_FILES[$fileKey]) || $_FILES[$fileKey]['error'] !== UPLOAD_ERR_OK) {
             return null;
         }
@@ -54,158 +194,231 @@ try {
         return null;
     }
     
-    // Helper function to get field value with fallback names
-    function getField($primary, $fallback = null) {
-        return $_POST[$primary] ?? ($_POST[$fallback] ?? null);
+    // Helper function to get field value with comprehensive fallback mapping
+    function getField($formData, $primary, $fallback = null) {
+        // Direct match
+        if (isset($formData[$primary]) && $formData[$primary] !== '') {
+            return $formData[$primary];
+        }
+        
+        // Fallback match
+        if ($fallback && isset($formData[$fallback]) && $formData[$fallback] !== '') {
+            return $formData[$fallback];
+        }
+        
+        // Try camelCase to snake_case conversion
+        $snakeCase = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $primary));
+        if (isset($formData[$snakeCase]) && $formData[$snakeCase] !== '') {
+            return $formData[$snakeCase];
+        }
+        
+        // Try snake_case to camelCase conversion
+        $camelCase = lcfirst(str_replace('_', '', ucwords($primary, '_')));
+        if (isset($formData[$camelCase]) && $formData[$camelCase] !== '') {
+            return $formData[$camelCase];
+        }
+        
+        return '';
     }
     
-    // Handle file uploads with multiple possible field names
-    $photoFile = uploadFile('photo', $uploadDir) ?? uploadFile('passportPhoto', $uploadDir);
-    $cvFile = uploadFile('cv', $uploadDir);
-    $educationalCertificatesFile = uploadFile('educationalCertificates', $uploadDir);
-    $marksheetsFile = uploadFile('marksheets', $uploadDir);
-    $identityProofFile = uploadFile('identityProof', $uploadDir);
-    $digitalSignatureFile = uploadFile('digitalSignature', $uploadDir);
-    $matricCertFile = uploadFile('matricCertificate', $uploadDir);
-    $interCertFile = uploadFile('interCertificate', $uploadDir);
-    $bachelorCertFile = uploadFile('bachelorCertificate', $uploadDir);
-    $masterCertFile = uploadFile('masterCertificate', $uploadDir);
-    
-    // Split fullName into firstName and lastName if needed
-    $fullName = getField('fullName', 'full_name');
-    $firstName = getField('firstName', 'first_name');
-    $lastName = getField('lastName', 'last_name');
-    
-    if ($fullName && !$lastName) {
-        $nameParts = explode(' ', trim($fullName), 2);
-        $firstName = $nameParts[0];
-        $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
+    // Create comprehensive field mapping
+    function mapFormFields($formData) {
+        $mapping = [
+            // Basic info mapping
+            'full_name' => getField($formData, 'fullName', 'full_name'),
+            'email_id' => getField($formData, 'emailId', 'email_id'),
+            'phone_number' => getField($formData, 'phoneNumber', 'phone_number'),
+            'mobile_number' => getField($formData, 'mobileNumber', 'mobile_number'),
+            'date_of_birth' => getField($formData, 'dateOfBirth', 'date_of_birth'),
+            'gender' => getField($formData, 'gender'),
+            'age' => getField($formData, 'age'),
+            'nationality' => getField($formData, 'nationality'),
+            'religion' => getField($formData, 'religion'),
+            'referral_source' => getField($formData, 'referralSource', 'referral_source'),
+            
+            // Address mapping
+            'address' => getField($formData, 'correspondenceAddress', 'address'),
+            'city' => getField($formData, 'city'),
+            'postal_code' => getField($formData, 'postalCode', 'postal_code'),
+            
+            // Parent info mapping
+            'parent_name' => getField($formData, 'parentName', 'parent_name'),
+            'parent_occupation' => getField($formData, 'parentOccupation', 'parent_occupation'),
+            'parent_mobile' => getField($formData, 'parentMobile', 'parent_mobile'),
+            'parent_email' => getField($formData, 'parentEmail', 'parent_email'),
+            
+            // Course info mapping
+            'course_type' => getField($formData, 'courseType', 'course_type'),
+            'course_name' => getField($formData, 'courseName', 'course_name'),
+            'preferred_start_date' => getField($formData, 'sessionYear', 'preferred_start_date'),
+            'study_mode' => getField($formData, 'studyMode', 'study_mode'),
+            
+            // Educational background mapping (10th)
+            'matric_board' => getField($formData, 'school10th', 'matric_board'),
+            'matric_year' => getField($formData, 'year10th', 'matric_year'),
+            'matric_marks' => getField($formData, 'marks10th', 'matric_marks'),
+            'matric_total_marks' => getField($formData, 'maxMarks10th', 'matric_total_marks'),
+            'matric_percentage' => getField($formData, 'percentage10th', 'matric_percentage'),
+            
+            // Educational background mapping (12th)
+            'inter_board' => getField($formData, 'school12th', 'inter_board'),
+            'inter_year' => getField($formData, 'year12th', 'inter_year'),
+            'inter_marks' => getField($formData, 'marks12th', 'inter_marks'),
+            'inter_total_marks' => getField($formData, 'maxMarks12th', 'inter_total_marks'),
+            'inter_percentage' => getField($formData, 'percentage12th', 'inter_percentage'),
+            
+            // Bachelor degree mapping
+            'bachelor_university' => getField($formData, 'collegeUG', 'bachelor_university'),
+            'bachelor_year' => getField($formData, 'yearUG', 'bachelor_year'),
+            'bachelor_percentage' => getField($formData, 'percentageUG', 'bachelor_percentage'),
+            'bachelor_cgpa' => getField($formData, 'cgpaUG', 'bachelor_cgpa'),
+            
+            // Master degree mapping
+            'master_university' => getField($formData, 'collegePG', 'master_university'),
+            'master_year' => getField($formData, 'yearPG', 'master_year'),
+            'master_percentage' => getField($formData, 'percentagePG', 'master_percentage'),
+            'master_cgpa' => getField($formData, 'cgpaPG', 'master_cgpa'),
+            
+            // Payment info
+            'payment_option' => getField($formData, 'paymentOption', 'payment_option')
+        ];
+        
+        return $mapping;
     }
     
-    // Prepare SQL with correct field names that match admin panel
+    // Handle file uploads based on actual form field names
+    $photoFile = handleFileUpload('passportPhoto', $uploadDir);
+    $cvFile = handleFileUpload('cv', $uploadDir);
+    $educationalCertificatesFile = handleFileUpload('educationalCertificates', $uploadDir);
+    $marksheetsFile = handleFileUpload('marksheets', $uploadDir);
+    $identityProofFile = handleFileUpload('identityProof', $uploadDir);
+    $digitalSignatureFile = handleFileUpload('digitalSignature', $uploadDir);
+    
+    // Generate unique application number
+    $applicationNumber = 'IBMP-' . date('Y') . '-' . uniqid();
+    
+    // Prepare SQL with essential fields including application_number
     $sql = "INSERT INTO applications (
-        title, first_name, last_name, full_name, email_id, phone_number, mobile_number, date_of_birth, gender, age,
-        nationality, religion, referral_source, address, city, postal_code,
+        application_number, first_name, last_name, full_name, email_id, phone_number, mobile_number, 
+        date_of_birth, gender, age, nationality, religion, referral_source, 
+        address, city, postal_code,
         parent_name, parent_occupation, parent_mobile, parent_email,
         course_type, course_name, preferred_start_date, study_mode,
         matric_board, matric_year, matric_marks, matric_total_marks, matric_percentage,
         inter_board, inter_year, inter_marks, inter_total_marks, inter_percentage,
         bachelor_university, bachelor_year, bachelor_percentage, bachelor_cgpa,
         master_university, master_year, master_percentage, master_cgpa,
-        sponsor_name, sponsor_relationship, sponsor_income, sponsor_occupation,
         payment_option,
-        emergency_contact_name, emergency_contact_relationship, emergency_contact_phone, emergency_contact_address,
-        photo, cv, educational_certificates, marksheets, identity_proof, digital_signature, matric_certificate, inter_certificate, bachelor_certificate, master_certificate,
-        status, created_at, updated_at
+        photo, cv, educational_certificates, marksheets, identity_proof, digital_signature,
+        status, created_at
     ) VALUES (
-        :title, :first_name, :last_name, :full_name, :email_id, :phone_number, :mobile_number, :date_of_birth, :gender, :age,
-        :nationality, :religion, :referral_source, :address, :city, :postal_code,
+        :application_number, :first_name, :last_name, :full_name, :email_id, :phone_number, :mobile_number, 
+        :date_of_birth, :gender, :age, :nationality, :religion, :referral_source, 
+        :address, :city, :postal_code,
         :parent_name, :parent_occupation, :parent_mobile, :parent_email,
         :course_type, :course_name, :preferred_start_date, :study_mode,
         :matric_board, :matric_year, :matric_marks, :matric_total_marks, :matric_percentage,
         :inter_board, :inter_year, :inter_marks, :inter_total_marks, :inter_percentage,
         :bachelor_university, :bachelor_year, :bachelor_percentage, :bachelor_cgpa,
         :master_university, :master_year, :master_percentage, :master_cgpa,
-        :sponsor_name, :sponsor_relationship, :sponsor_income, :sponsor_occupation,
         :payment_option,
-        :emergency_contact_name, :emergency_contact_relationship, :emergency_contact_phone, :emergency_contact_address,
-        :photo, :cv, :educational_certificates, :marksheets, :identity_proof, :digital_signature, :matric_certificate, :inter_certificate, :bachelor_certificate, :master_certificate,
-        'pending', NOW(), NOW()
+        :photo, :cv, :educational_certificates, :marksheets, :identity_proof, :digital_signature,
+        'pending', NOW()
     )";
     
     $stmt = $pdo->prepare($sql);
     
-    // Bind parameters with multiple field name support
-    $title = getField('title');
-    $fullName = $firstName . ' ' . $lastName;
-    $emailId = getField('email', 'emailId') ?: getField('email_id');
-    $phoneNumber = getField('phone', 'phoneNumber');
-    $mobileNumber = getField('mobileNumber', 'mobile_number');
+    // Use comprehensive field mapping
+    $mappedFields = mapFormFields($formData);
     
-    $stmt->bindParam(':title', $title);
+    // Validate essential mapped fields
+    $requiredFields = ['full_name', 'email_id', 'course_type', 'course_name'];
+    $missingFields = [];
+    
+    foreach ($requiredFields as $field) {
+        if (empty($mappedFields[$field])) {
+            $missingFields[] = $field;
+        }
+    }
+    
+    if (!empty($missingFields)) {
+        error_log("IBMP Missing required fields after mapping: " . implode(', ', $missingFields));
+        sendResponse(false, 'Required form fields are missing. Please fill in all required fields and try again.');
+    }
+    
+    // Validate email format
+    if (!filter_var($mappedFields['email_id'], FILTER_VALIDATE_EMAIL)) {
+        sendResponse(false, 'Please provide a valid email address.');
+    }
+    
+    // Log successful mapping for debugging
+    error_log("IBMP Mapping successful - Name: " . $mappedFields['full_name'] . ", Email: " . $mappedFields['email_id'] . ", Course: " . $mappedFields['course_name']);
+    
+    // Split full name into first and last name
+    $nameParts = explode(' ', trim($mappedFields['full_name']), 2);
+    $firstName = $nameParts[0];
+    $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
+    
+    // Bind core fields with mapped data including application_number
+    $stmt->bindParam(':application_number', $applicationNumber);
     $stmt->bindParam(':first_name', $firstName);
-    $stmt->bindParam(':last_name', $lastName);
-    $stmt->bindParam(':full_name', $fullName);
-    $stmt->bindParam(':email_id', $emailId);
-    $stmt->bindParam(':phone_number', $phoneNumber);
-    $stmt->bindParam(':mobile_number', $mobileNumber);
-    $stmt->bindParam(':date_of_birth', getField('dateOfBirth', 'date_of_birth'));
-    $stmt->bindParam(':gender', getField('gender'));
-    $stmt->bindParam(':age', getField('age'));
-    $stmt->bindParam(':nationality', getField('nationality'));
-    $stmt->bindParam(':religion', getField('religion'));
-    $stmt->bindParam(':referral_source', getField('referralSource', 'otherReferralSource'));
-    $stmt->bindParam(':address', getField('address', 'correspondenceAddress'));
-    $stmt->bindParam(':city', getField('city'));
-    $stmt->bindParam(':postal_code', getField('postalCode', 'postal_code'));
+    $stmt->bindParam(':last_name', $lastName);  
+    $stmt->bindParam(':full_name', $mappedFields['full_name']);
+    $stmt->bindParam(':email_id', $mappedFields['email_id']);
+    $stmt->bindParam(':phone_number', $mappedFields['phone_number']);
+    $stmt->bindParam(':mobile_number', $mappedFields['mobile_number']);
     
-    // Parent information
-    $stmt->bindParam(':parent_name', getField('parentName', 'parent_name'));
-    $stmt->bindParam(':parent_occupation', getField('parentOccupation', 'parent_occupation'));
-    $stmt->bindParam(':parent_mobile', getField('parentMobile', 'parent_mobile'));
-    $stmt->bindParam(':parent_email', getField('parentEmail', 'parent_email'));
+    // Bind all personal information using mapped fields
+    $stmt->bindParam(':date_of_birth', $mappedFields['date_of_birth']);
+    $stmt->bindParam(':gender', $mappedFields['gender']);
+    $stmt->bindParam(':age', $mappedFields['age']);
+    $stmt->bindParam(':nationality', $mappedFields['nationality']);
+    $stmt->bindParam(':religion', $mappedFields['religion']);
+    $stmt->bindParam(':referral_source', $mappedFields['referral_source']);
+    $stmt->bindParam(':address', $mappedFields['address']);
+    $stmt->bindParam(':city', $mappedFields['city']);
+    $stmt->bindParam(':postal_code', $mappedFields['postal_code']);
     
-    // Course information with field mapping
-    $stmt->bindParam(':course_type', getField('courseType', 'course_type'));
-    $stmt->bindParam(':course_name', getField('program', 'courseName') ?: getField('course_name'));
-    $stmt->bindParam(':preferred_start_date', getField('preferredStartDate', 'sessionYear'));
-    $stmt->bindParam(':study_mode', getField('studyMode', 'study_mode'));
+    // Bind parent information using mapped fields
+    $stmt->bindParam(':parent_name', $mappedFields['parent_name']);
+    $stmt->bindParam(':parent_occupation', $mappedFields['parent_occupation']);
+    $stmt->bindParam(':parent_mobile', $mappedFields['parent_mobile']);
+    $stmt->bindParam(':parent_email', $mappedFields['parent_email']);
     
-    // Educational background - Matriculation
-    $stmt->bindParam(':matric_board', getField('matricBoard', 'school10th') ?: getField('school_10th'));
-    $stmt->bindParam(':matric_year', getField('matricYear', 'year10th') ?: getField('year_10th'));
-    $stmt->bindParam(':matric_marks', getField('matricMarks', 'marks10th') ?: getField('marks_10th'));
-    $stmt->bindParam(':matric_total_marks', getField('matricTotalMarks', 'maxMarks10th') ?: getField('max_marks_10th'));
-    $stmt->bindParam(':matric_percentage', getField('matricPercentage', 'percentage10th') ?: getField('percentage_10th'));
+    // Bind course information using mapped fields
+    $stmt->bindParam(':course_type', $mappedFields['course_type']);
+    $stmt->bindParam(':course_name', $mappedFields['course_name']);
+    $stmt->bindParam(':preferred_start_date', $mappedFields['preferred_start_date']);
+    $stmt->bindParam(':study_mode', $mappedFields['study_mode']);
     
-    // Educational background - Intermediate
-    $stmt->bindParam(':inter_board', getField('interBoard', 'school12th') ?: getField('school_12th'));
-    $stmt->bindParam(':inter_year', getField('interYear', 'year12th') ?: getField('year_12th'));
-    $stmt->bindParam(':inter_marks', getField('interMarks', 'marks12th') ?: getField('marks_12th'));
-    $stmt->bindParam(':inter_total_marks', getField('interTotalMarks', 'maxMarks12th') ?: getField('max_marks_12th'));
-    $stmt->bindParam(':inter_percentage', getField('interPercentage', 'percentage12th') ?: getField('percentage_12th'));
+    // Bind educational background using mapped fields - Matriculation
+    $stmt->bindParam(':matric_board', $mappedFields['matric_board']);
+    $stmt->bindParam(':matric_year', $mappedFields['matric_year']);
+    $stmt->bindParam(':matric_marks', $mappedFields['matric_marks']);
+    $stmt->bindParam(':matric_total_marks', $mappedFields['matric_total_marks']);
+    $stmt->bindParam(':matric_percentage', $mappedFields['matric_percentage']);
     
-    // Educational background - Bachelor
-    $stmt->bindParam(':bachelor_university', getField('bachelorUniversity', 'collegeUG') ?: getField('college_ug'));
-    $stmt->bindParam(':bachelor_year', getField('bachelorYear', 'yearUG') ?: getField('year_ug'));
-    $stmt->bindParam(':bachelor_percentage', getField('bachelorPercentage', 'percentageUG') ?: getField('percentage_ug'));
-    $stmt->bindParam(':bachelor_cgpa', getField('bachelorCGPA'));
+    // Bind educational background using mapped fields - Intermediate
+    $stmt->bindParam(':inter_board', $mappedFields['inter_board']);
+    $stmt->bindParam(':inter_year', $mappedFields['inter_year']);
+    $stmt->bindParam(':inter_marks', $mappedFields['inter_marks']);
+    $stmt->bindParam(':inter_total_marks', $mappedFields['inter_total_marks']);
+    $stmt->bindParam(':inter_percentage', $mappedFields['inter_percentage']);
     
-    // Educational background - Master (optional)
-    $masterUniversity = getField('masterUniversity', 'collegePG') ?: getField('college_pg');
-    $masterYear = getField('masterYear', 'yearPG') ?: getField('year_pg');
-    $masterPercentage = getField('masterPercentage', 'percentagePG') ?: getField('percentage_pg');
-    $masterCGPA = getField('masterCGPA');
+    // Bind educational background using mapped fields - Bachelor
+    $stmt->bindParam(':bachelor_university', $mappedFields['bachelor_university']);
+    $stmt->bindParam(':bachelor_year', $mappedFields['bachelor_year']);
+    $stmt->bindParam(':bachelor_percentage', $mappedFields['bachelor_percentage']);
+    $stmt->bindParam(':bachelor_cgpa', $mappedFields['bachelor_cgpa']);
     
-    $stmt->bindParam(':master_university', $masterUniversity);
-    $stmt->bindParam(':master_year', $masterYear);
-    $stmt->bindParam(':master_percentage', $masterPercentage);
-    $stmt->bindParam(':master_cgpa', $masterCGPA);
+    // Bind educational background using mapped fields - Master
+    $stmt->bindParam(':master_university', $mappedFields['master_university']);
+    $stmt->bindParam(':master_year', $mappedFields['master_year']);
+    $stmt->bindParam(':master_percentage', $mappedFields['master_percentage']);
+    $stmt->bindParam(':master_cgpa', $mappedFields['master_cgpa']);
     
-    // Sponsor information (optional)
-    $sponsorName = getField('sponsorName', 'parentName') ?: getField('parent_name');
-    $sponsorRelationship = getField('sponsorRelationship');
-    $sponsorIncome = getField('sponsorIncome');
-    $sponsorOccupation = getField('sponsorOccupation', 'parentOccupation') ?: getField('parent_occupation');
-    
-    $stmt->bindParam(':sponsor_name', $sponsorName);
-    $stmt->bindParam(':sponsor_relationship', $sponsorRelationship);
-    $stmt->bindParam(':sponsor_income', $sponsorIncome);
-    $stmt->bindParam(':sponsor_occupation', $sponsorOccupation);
-    
-    // Payment option
-    $stmt->bindParam(':payment_option', getField('paymentOption', 'paymentMethod'));
-    
-    // Emergency contact (optional)
-    $emergencyName = getField('emergencyContactName');
-    $emergencyRelationship = getField('emergencyContactRelationship');
-    $emergencyPhone = getField('emergencyContactPhone');
-    $emergencyAddress = getField('emergencyContactAddress');
-    
-    $stmt->bindParam(':emergency_contact_name', $emergencyName);
-    $stmt->bindParam(':emergency_contact_relationship', $emergencyRelationship);
-    $stmt->bindParam(':emergency_contact_phone', $emergencyPhone);
-    $stmt->bindParam(':emergency_contact_address', $emergencyAddress);
+    // Bind payment option using mapped fields
+    $stmt->bindParam(':payment_option', $mappedFields['payment_option']);
     
     // File uploads
     $stmt->bindParam(':photo', $photoFile);
@@ -214,10 +427,6 @@ try {
     $stmt->bindParam(':marksheets', $marksheetsFile);
     $stmt->bindParam(':identity_proof', $identityProofFile);
     $stmt->bindParam(':digital_signature', $digitalSignatureFile);
-    $stmt->bindParam(':matric_certificate', $matricCertFile);
-    $stmt->bindParam(':inter_certificate', $interCertFile);
-    $stmt->bindParam(':bachelor_certificate', $bachelorCertFile);
-    $stmt->bindParam(':master_certificate', $masterCertFile);
     
     // Execute the query
     if (!$stmt->execute()) {
@@ -226,41 +435,26 @@ try {
     
     $applicationId = $pdo->lastInsertId();
     
-    // Clear any output buffer
-    ob_clean();
-    
     // Return success response
-    echo json_encode([
-        'success' => true,
-        'message' => 'Application submitted successfully to International Board of Medical Practitioners!',
+    sendResponse(true, 'Application submitted successfully to International Board of Medical Practitioners!', [
         'applicationId' => $applicationId,
+        'application_number' => $applicationNumber,
         'redirect' => 'success.html'
     ]);
     
 } catch (Exception $e) {
-    // Clear any output buffer
-    ob_clean();
+    // Log the error for debugging
+    error_log("IBMP Form Submission Error: " . $e->getMessage() . " | File: " . __FILE__ . " | Line: " . __LINE__);
     
-    // Log the error
-    error_log("Submission Error: " . $e->getMessage());
-    
-    // Return error response
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Sorry, there was an error submitting your application. Please try again.',
-        'error' => $e->getMessage(),
+    // Send user-friendly error response
+    sendResponse(false, 'Sorry, there was an error submitting your application. Please try again.', [
         'debug_info' => [
             'timestamp' => date('Y-m-d H:i:s'),
+            'error_type' => get_class($e),
             'has_config' => file_exists('config.php'),
-            'post_fields' => isset($_POST) ? array_keys($_POST) : [],
-            'file_uploads' => isset($_FILES) ? array_keys($_FILES) : []
+            'post_count' => isset($_POST) ? count($_POST) : 0,
+            'files_count' => isset($_FILES) ? count($_FILES) : 0
         ]
     ]);
-} finally {
-    // End output buffering
-    if (ob_get_level() > 0) {
-        ob_end_flush();
-    }
 }
 ?>

@@ -32,6 +32,17 @@ if ($_POST) {
         
         if ($existingInvoice) {
             // Update existing invoice
+            // Calculate due amount
+            $courseAmount = floatval($_POST['course_amount']);
+            $discount = floatval($_POST['discount'] ?? 0);
+            $taxRate = floatval($_POST['tax_rate'] ?? 0);
+            $paidAmount = floatval($_POST['paid_amount'] ?? 0);
+            
+            $subtotal = $courseAmount - $discount;
+            $taxAmount = ($subtotal * $taxRate) / 100;
+            $finalAmount = $subtotal + $taxAmount;
+            $dueAmount = max(0, $finalAmount - $paidAmount);
+            
             $stmt = $pdo->prepare("UPDATE invoices SET 
                 invoice_number = ?, 
                 invoice_date = ?, 
@@ -40,6 +51,8 @@ if ($_POST) {
                 course_amount = ?, 
                 discount = ?, 
                 tax_rate = ?, 
+                paid_amount = ?,
+                due_amount = ?,
                 notes = ?, 
                 updated_at = NOW() 
                 WHERE application_id = ?");
@@ -51,15 +64,28 @@ if ($_POST) {
                 $_POST['course_amount'],
                 $_POST['discount'] ?? 0,
                 $_POST['tax_rate'] ?? 0,
+                $_POST['paid_amount'] ?? 0,
+                $dueAmount,
                 $_POST['notes'],
                 $applicationId
             ]);
         } else {
             // Insert new invoice
+            // Calculate due amount (same calculation as above)
+            $courseAmount = floatval($_POST['course_amount']);
+            $discount = floatval($_POST['discount'] ?? 0);
+            $taxRate = floatval($_POST['tax_rate'] ?? 0);
+            $paidAmount = floatval($_POST['paid_amount'] ?? 0);
+            
+            $subtotal = $courseAmount - $discount;
+            $taxAmount = ($subtotal * $taxRate) / 100;
+            $finalAmount = $subtotal + $taxAmount;
+            $dueAmount = max(0, $finalAmount - $paidAmount);
+            
             $stmt = $pdo->prepare("INSERT INTO invoices (
                 application_id, invoice_number, invoice_date, due_date, 
-                course_name, course_amount, discount, tax_rate, notes, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+                course_name, course_amount, discount, tax_rate, paid_amount, due_amount, notes, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
             $stmt->execute([
                 $applicationId,
                 $_POST['invoice_number'],
@@ -69,6 +95,8 @@ if ($_POST) {
                 $_POST['course_amount'],
                 $_POST['discount'] ?? 0,
                 $_POST['tax_rate'] ?? 0,
+                $_POST['paid_amount'] ?? 0,
+                $dueAmount,
                 $_POST['notes']
             ]);
         }
@@ -647,6 +675,19 @@ function displayValue($value) {
                                    value="<?= displayValue($invoice['tax_rate'] ?? 0) ?>" 
                                    step="0.01" min="0" max="100">
                         </div>
+                        <div class="form-group">
+                            <label for="paid_amount">💰 Paid Amount (₹)</label>
+                            <input type="number" id="paid_amount" name="paid_amount" 
+                                   value="<?= displayValue($invoice['paid_amount'] ?? 0) ?>" 
+                                   step="0.01" min="0" onchange="calculateDueAmount()">
+                        </div>
+                        <div class="form-group">
+                            <label for="due_amount">📋 Due Amount (₹)</label>
+                            <input type="number" id="due_amount" name="due_amount" 
+                                   value="<?= displayValue(($invoice['final_amount'] ?? 0) - ($invoice['paid_amount'] ?? 0)) ?>" 
+                                   step="0.01" min="0" readonly style="background-color: #f0f8ff; border: 1px solid #ccc;">
+                            <small style="color: #666;">Automatically calculated: Final Amount - Paid Amount</small>
+                        </div>
                     </div>
                 </div>
 
@@ -747,30 +788,49 @@ function displayValue($value) {
                         $courseAmount = floatval($invoice['course_amount'] ?? $defaultPrice);
                         $discount = floatval($invoice['discount'] ?? 0);
                         $taxRate = floatval($invoice['tax_rate'] ?? 0);
+                        $paidAmount = floatval($invoice['paid_amount'] ?? 0);
                         $subtotal = $courseAmount - $discount;
                         $taxAmount = ($subtotal * $taxRate) / 100;
                         $total = $subtotal + $taxAmount;
+                        $dueAmount = max(0, $total - $paidAmount);
                         ?>
                         <tr>
                             <td>Subtotal:</td>
-                            <td>$<?= number_format($courseAmount, 2) ?></td>
+                            <td>₹<?= number_format($courseAmount, 2) ?></td>
                         </tr>
                         <?php if ($discount > 0): ?>
                         <tr>
                             <td>Discount:</td>
-                            <td>-$<?= number_format($discount, 2) ?></td>
+                            <td>-₹<?= number_format($discount, 2) ?></td>
                         </tr>
                         <?php endif; ?>
                         <?php if ($taxRate > 0): ?>
                         <tr>
                             <td>Tax (<?= $taxRate ?>%):</td>
-                            <td>$<?= number_format($taxAmount, 2) ?></td>
+                            <td>₹<?= number_format($taxAmount, 2) ?></td>
                         </tr>
                         <?php endif; ?>
                         <tr class="total-amount">
                             <td>Total Amount:</td>
-                            <td>$<?= number_format($total, 2) ?></td>
+                            <td>₹<?= number_format($total, 2) ?></td>
                         </tr>
+                        <?php if ($paidAmount > 0): ?>
+                        <tr style="background: #d1fae5; color: #065f46;">
+                            <td>💰 Paid Amount:</td>
+                            <td>₹<?= number_format($paidAmount, 2) ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        <?php if ($dueAmount > 0): ?>
+                        <tr style="background: #fef3c7; color: #92400e; font-weight: bold;">
+                            <td>📋 Due Amount:</td>
+                            <td>₹<?= number_format($dueAmount, 2) ?></td>
+                        </tr>
+                        <?php elseif ($paidAmount >= $total): ?>
+                        <tr style="background: #d1fae5; color: #065f46; font-weight: bold;">
+                            <td>✅ Payment Status:</td>
+                            <td>FULLY PAID</td>
+                        </tr>
+                        <?php endif; ?>
                     </table>
                 </div>
 
@@ -783,7 +843,7 @@ function displayValue($value) {
     </div>
 
     <script>
-        // Auto-calculate totals
+        // Auto-calculate totals and due amount
         function updateTotals() {
             const courseAmount = parseFloat(document.getElementById('course_amount').value) || 0;
             const discount = parseFloat(document.getElementById('discount').value) || 0;
@@ -793,12 +853,35 @@ function displayValue($value) {
             const taxAmount = (subtotal * taxRate) / 100;
             const total = subtotal + taxAmount;
             
+            // Update due amount automatically
+            calculateDueAmount();
+            
             // Update preview (you can enhance this to update the preview in real-time)
+        }
+
+        // Calculate due amount based on final amount and paid amount
+        function calculateDueAmount() {
+            const courseAmount = parseFloat(document.getElementById('course_amount').value) || 0;
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+            const taxRate = parseFloat(document.getElementById('tax_rate').value) || 0;
+            const paidAmount = parseFloat(document.getElementById('paid_amount').value) || 0;
+            
+            // Calculate final amount
+            const subtotal = courseAmount - discount;
+            const taxAmount = (subtotal * taxRate) / 100;
+            const finalAmount = subtotal + taxAmount;
+            
+            // Calculate due amount
+            const dueAmount = Math.max(0, finalAmount - paidAmount);
+            
+            // Update the due amount field
+            document.getElementById('due_amount').value = dueAmount.toFixed(2);
         }
 
         document.getElementById('course_amount').addEventListener('input', updateTotals);
         document.getElementById('discount').addEventListener('input', updateTotals);
         document.getElementById('tax_rate').addEventListener('input', updateTotals);
+        document.getElementById('paid_amount').addEventListener('input', calculateDueAmount);
 
         // Enhanced Download PDF function
         function downloadInvoice() {

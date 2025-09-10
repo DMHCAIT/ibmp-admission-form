@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Admission Form - International Board of Medical Practitioners</title>
-    <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="styles.css?v=36-checkbox-fix"></link>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -665,7 +669,7 @@
 
                         <!-- Form Actions -->
                         <div class="form-actions">
-                            <!-- Save draft functionality removed -->
+                            <!-- PDF generation moved to admin panel only -->
                         </div>
 
                         <!-- Submit Button -->
@@ -754,6 +758,48 @@
         </div>
     </div>
 
-    <script src="enhanced-script.js?v=20250907-v26"></script>
+        <script src="enhanced-script.js?v=39-duplicate-fix"></script>
+    <script>
+        // Force initialization of enhanced table features
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔄 Initializing enhanced table scrolling features...');
+            
+            // Form is auto-initialized by enhanced-script.js
+            // Additional table enhancements below
+            const tableWrapper = document.querySelector('.educational-table-wrapper');
+            const table = document.querySelector('.educational-table table');
+            
+            if (tableWrapper && table) {
+                console.log('✅ Found educational table - applying enhancements');
+                
+                // Force add custom scrollbars and indicators
+                tableWrapper.style.position = 'relative';
+                tableWrapper.style.overflowX = 'auto';
+                
+                // Check if table needs scrolling
+                if (table.scrollWidth > tableWrapper.clientWidth) {
+                    console.log('📊 Table wider than container - adding scroll features');
+                    
+                    // Add desktop scroll hint if not present
+                    if (!tableWrapper.querySelector('.desktop-scroll-hint')) {
+                        const hint = document.createElement('div');
+                        hint.className = 'desktop-scroll-hint';
+                        hint.innerHTML = '⬅️ Scroll horizontally to see all columns ➡️';
+                        hint.style.cssText = `
+                            text-align: center;
+                            padding: 8px;
+                            background: rgba(59, 130, 246, 0.1);
+                            color: #1e40af;
+                            font-size: 0.85rem;
+                            border-radius: 4px;
+                            margin-bottom: 8px;
+                            font-weight: 500;
+                        `;
+                        tableWrapper.insertBefore(hint, table.parentNode);
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
