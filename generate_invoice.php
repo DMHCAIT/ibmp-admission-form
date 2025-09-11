@@ -676,13 +676,13 @@ function displayValue($value) {
                                    step="0.01" min="0" max="100">
                         </div>
                         <div class="form-group">
-                            <label for="paid_amount">💰 Paid Amount (₹)</label>
+                            <label for="paid_amount">💰 Paid Amount ($)</label>
                             <input type="number" id="paid_amount" name="paid_amount" 
                                    value="<?= displayValue($invoice['paid_amount'] ?? 0) ?>" 
                                    step="0.01" min="0" onchange="calculateDueAmount()">
                         </div>
                         <div class="form-group">
-                            <label for="due_amount">📋 Due Amount (₹)</label>
+                            <label for="due_amount">📋 Due Amount ($)</label>
                             <input type="number" id="due_amount" name="due_amount" 
                                    value="<?= displayValue(($invoice['final_amount'] ?? 0) - ($invoice['paid_amount'] ?? 0)) ?>" 
                                    step="0.01" min="0" readonly style="background-color: #f0f8ff; border: 1px solid #ccc;">
@@ -796,34 +796,34 @@ function displayValue($value) {
                         ?>
                         <tr>
                             <td>Subtotal:</td>
-                            <td>₹<?= number_format($courseAmount, 2) ?></td>
+                            <td>$<?= number_format($courseAmount, 2) ?></td>
                         </tr>
                         <?php if ($discount > 0): ?>
                         <tr>
                             <td>Discount:</td>
-                            <td>-₹<?= number_format($discount, 2) ?></td>
+                            <td>-$<?= number_format($discount, 2) ?></td>
                         </tr>
                         <?php endif; ?>
                         <?php if ($taxRate > 0): ?>
                         <tr>
                             <td>Tax (<?= $taxRate ?>%):</td>
-                            <td>₹<?= number_format($taxAmount, 2) ?></td>
+                            <td>$<?= number_format($taxAmount, 2) ?></td>
                         </tr>
                         <?php endif; ?>
                         <tr class="total-amount">
                             <td>Total Amount:</td>
-                            <td>₹<?= number_format($total, 2) ?></td>
+                            <td>$<?= number_format($total, 2) ?></td>
                         </tr>
                         <?php if ($paidAmount > 0): ?>
                         <tr style="background: #d1fae5; color: #065f46;">
                             <td>💰 Paid Amount:</td>
-                            <td>₹<?= number_format($paidAmount, 2) ?></td>
+                            <td>$<?= number_format($paidAmount, 2) ?></td>
                         </tr>
                         <?php endif; ?>
                         <?php if ($dueAmount > 0): ?>
                         <tr style="background: #fef3c7; color: #92400e; font-weight: bold;">
                             <td>📋 Due Amount:</td>
-                            <td>₹<?= number_format($dueAmount, 2) ?></td>
+                            <td>$<?= number_format($dueAmount, 2) ?></td>
                         </tr>
                         <?php elseif ($paidAmount >= $total): ?>
                         <tr style="background: #d1fae5; color: #065f46; font-weight: bold;">
